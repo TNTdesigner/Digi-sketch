@@ -1,3 +1,3 @@
 # Digi-sketch
 
-Project for 1ste year on thomas-more hight school belguim.
+Project for 1ste year on thomas-more high school belguim.
