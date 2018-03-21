@@ -51,7 +51,7 @@ STAOPNIEUW:
     mov     STA,a                       ;data opslaan in STA voor eventuel gebruik later
     mov     r0,a                        ;debug status op aurt zetten
     lcall   debug
-    mov     p3_data,#00h
+    clr     CE
     pop     psw
     pop     acc
 ret
@@ -72,9 +72,6 @@ initGLCD:
     lcall   initsio                 ;voor debug
 
     lcall   statusCheck             ;initiele status check uitvoeren
-    
-    mov     COMANDREG,#80h          ;mode instellen
-    lcall   zendComando             ;mode instellen
 
     mov     DATAREG,#00h            ;grafisch home adres
     lcall   zendData
@@ -83,7 +80,7 @@ initGLCD:
     mov     COMANDREG,#42h 
     lcall   zendComando     
     
-    mov     DATAREG,#28h            ;Grafic aeria set
+    mov     DATAREG,#1eh            ;Grafic aeria set
     lcall   zendData
     mov     DATAREG,#00h
     lcall   zendData
@@ -98,11 +95,17 @@ initGLCD:
     mov     COMANDREG,#40h
     lcall   zendComando
     
-    mov     DATAREG,#28h            ;aantal colommen text
+    mov     DATAREG,#1eh            ;aantal colommen text
     lcall   zendData
     mov     DATAREG,#00h
     lcall   zendData
     mov     COMANDREG,#41h
+    lcall   zendComando
+
+    mov     COMANDREG,#80h
+    lcall   zendComando
+
+    mov     COMANDREG,#9Eh
     lcall   zendComando
 ret
 
@@ -172,13 +175,14 @@ ret
 zendData:
     push    acc
     push    psw
+    lcall   statusCheck             ;status van scherm checken voor het zenden van data
     lcall   P5out                   ;poort 5 als output schakelen
-    mov     p3_data,#0000010b
-    lcall   delay1ms
     mov     p5_data,DATAREG               ;data op de poort zetten
+    mov     p3_data,#00001001b
+    lcall   delay1ms
+    clr     CE
     mov     r0,DATAREG
     lcall   debug
-    lcall   statusCheck             ;status van scherm checken voor het zenden van data
     pop     psw
     pop     acc
 ret
@@ -190,13 +194,14 @@ ret
 zendComando:
     push    acc
     push    psw
+    lcall   statusCheck             ;status van scherm checken voor het zenden van data
     lcall   P5out                   ;poort 5 als output schakelen
-    mov     p3_data,#00001010b
-    lcall   delay1ms
     mov     p5_data,COMANDREG       ;data op de poort zetten
+    mov     p3_data,#00001110b
+    lcall   delay1ms
+    clr     CE
     mov     r0,COMANDREG
     lcall   debug
-    lcall   statusCheck             ;status van scherm checken voor het zenden van data
     pop     psw
     pop     acc
 ret
