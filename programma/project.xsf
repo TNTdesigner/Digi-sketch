@@ -12,12 +12,12 @@
 ;------------------------------------------------------------------
 ;declaratie van pinnen          
 ;------------------------------------------------------------------
-    WR          bit     p1_data.5   ;write line van scherm actief laag
-    RD          bit     p1_data.4   ;read line van scherrm actief laag
-    CE          bit     p1_data.3   ;chip enble van scherm actief laag
-    CD          bit     p1_data.2   ;Command write
-    RESET       bit     p1_data.0   ;reset van scherm actief laag
-    FS          bit     p1_data.6   ;font groote selecteren FS=1: 6*8, FS=0: 8*8
+    WR          bit     p3_data.0   ;write line van scherm actief laag
+    RD          bit     p3_data.1   ;read line van scherrm actief laag
+    CE          bit     p3_data.2   ;chip enble van scherm actief laag
+    CD          bit     p3_data.3   ;Command write
+    RESET       bit     p1_data.1   ;reset van scherm actief laag
+    FS          bit     p1_data.0   ;font groote selecteren FS=1: 6*8, FS=0: 8*8
                                                            
                         
                         
@@ -36,20 +36,22 @@
 statusCheck:
     push    acc
     push    psw
-    lcall   P3in                        ;poort 3 als input schakelen
+    lcall   P4in                        ;poort 4 als input schakelen
+    lcall   P3out
+    mov     p4_data,#00h
 STAOPNIEUW:    
     mov     STA,#00h                    ;STA register leeg maken
     setb    CD                          ;C/D hoog maken
-    lcall   delay10us
-    mov     p1_data,#01011101b               
-    setb    RD                          ;RD' laag maken
-    clr     WR                          ;WR' hoog maken
+    mov     p1_data,#00001110b               
     setb    CE                          ;CE' laag maken 
     mov     a,p3_data                   ;status word inlezen
     anl     a,#03h                      ;masker voor STA0 en STA1
+
+    
+
     cjne    a,#03h,STAOPNIEUW           ;vergelijken
     mov     STA,a                       ;data opslaan in STA voor eventuel gebruik later
-    mov     r0,STA                      ;debug status op aurt zetten
+    mov     r0,a                      ;debug status op aurt zetten
     lcall   debug
     clr     CE                          ;CE' terug hoog maken
     pop     psw
@@ -63,23 +65,19 @@ ret
 initGLCD:
     lcall   P1out                   ;poort 1 initializeren
     clr     RESET                   ;reseten van scherm
-    setb    FS                      ;font op 6*8 zetten
-    clr     CE                      ;chip enable hoog zetten   
-    mov     a,#20                   ;reset lang genenoeg laten duren
+    mov     a,#0fh                   ;reset lang genenoeg laten duren
     lcall   delaya0k05s
     setb    RESET                   ;reset terug af zetten
-    
+    setb    FS                      ;font op 6*8 zetten
+    clr     CE                      ;chip enable hoog zetten   
+
+        
     lcall   initsio                 ;voor debug
-    
-w1:
-    jnb     p2_data.0,w1
 
     lcall   statusCheck             ;initiele status check uitvoeren
     
     mov     COMANDREG,#80h          ;mode instellen
     lcall   zendComando             ;mode instellen
-wacht2:
-    jnb     p2_data.0,wacht2
 
     mov     DATAREG,#00h            ;grafisch home adres
     lcall   zendData
@@ -87,8 +85,7 @@ wacht2:
     lcall   zendData
     mov     COMANDREG,#42h 
     lcall   zendComando     
-wacht3:
-    jnb     p2_data.0,wacht3
+    
     mov     DATAREG,#28h            ;Grafic aeria set
     lcall   zendData
     mov     DATAREG,#00h
@@ -96,16 +93,14 @@ wacht3:
     mov     COMANDREG,#43h
     lcall   zendComando
 
-wacht4:
-    jnb     p2_data.0,wacht4
+
     mov     DATAREG,#00h            ;text home aderes
     lcall   zendData
     mov     DATAREG,#00h                
     lcall   zendData
     mov     COMANDREG,#40h
     lcall   zendComando
-wacht5:
-    jnb     p2_data.0,wacht5    
+    
     mov     DATAREG,#28h            ;aantal colommen text
     lcall   zendData
     mov     DATAREG,#00h
@@ -123,6 +118,9 @@ P1out:
     push    syscon0                 ;juiste map selecteren
     mov     syscon0,#004h
     push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
+    mov     port_page,#001h         ;selecteer poort page 0
+    mov     p1_pudsel,#0ffh         ;selecteer pull_up device
+    mov     p1_puden,#0ffh          ;selectie inschakelen
     mov     port_page,#000h         ;selecteer poort page 0
     mov     p1_dir,#0ffh            ;poort 3 als output schakelen
     pop     port_page               ;herstellen in oorspronkelijke staat
@@ -144,19 +142,32 @@ P3out:
 ret         
 
 ;------------------------------------------------------------------
-;Initializatie poort 3 als input
-;-poort 3
+;Initializatie poort 4 als output
+;-poort 4
 ;------------------------------------------------------------------
-P3in:
+P4out:
     push    syscon0                 ;juiste map selecteren
     mov     syscon0,#004h
     push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
     mov     port_page,#000h         ;selecteer poort page 0
-    mov     p3_dir,#000h            ;poort 3 als input schakelen
+    mov     p4_dir,#0ffh            ;poort 3 als output schakelen
+    pop     port_page               ;herstellen in oorspronkelijke staat
+    pop     syscon0                 ;pagina terug herstellen
+ret         
+
+;------------------------------------------------------------------
+;Initializatie poort 4 als input
+;-poort 4
+;------------------------------------------------------------------
+P4in:
+    push    syscon0                 ;juiste map selecteren
+    mov     syscon0,#004h
+    push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
+    mov     port_page,#000h         ;selecteer poort page 0
+    mov     p4_dir,#000h            ;poort 3 als input schakelen
     pop     port_page               ;herstellen in oorspronkelijke staat
     pop     syscon0                 ;pagina terug herstellen
 ret 
-
 ;------------------------------------------------------------------
 ;Data verzeden naar scherm 
 ;-DATAREG

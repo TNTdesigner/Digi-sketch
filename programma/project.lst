@@ -1,5 +1,5 @@
-C:\Users\Nico\Desktop\Project\Digi-Sketch\programma\project.xsf 
-C:\Users\Nico\Desktop\Project\Digi-Sketch\programma\project.inc 
+C:\Users\Nico\Documents\Thomas more\Digi-sketch\programma\project.xsf 
+C:\Users\Nico\Documents\Thomas more\Digi-sketch\programma\project.inc 
        1       1   00000                  ;------------------------------------------------------------------
        2       2   00000                  ;Lijst van functies:
        3       3   00000                  ;   -statusCheck            Status check van scherm opslaan in STA register
@@ -14,17 +14,17 @@ C:\Users\Nico\Desktop\Project\Digi-Sketch\programma\project.inc
       12      12   00000                  ;------------------------------------------------------------------
       13      13   00000                  ;declaratie van pinnen
       14      14   00000                  ;------------------------------------------------------------------
-      15      15   00000                      WR          bit     p1_data.5   ;write line van scherm actief laag
+      15      15   00000                      WR          bit     p3_data.0   ;write line van scherm actief laag
                                           ***** Error: Unresolved operand(s)
-      16      16   00000                      RD          bit     p1_data.4   ;read line van scherrm actief laag
+      16      16   00000                      RD          bit     p3_data.1   ;read line van scherrm actief laag
                                           ***** Error: Unresolved operand(s)
-      17      17   00000                      CE          bit     p1_data.3   ;chip enble van scherm actief laag
+      17      17   00000                      CE          bit     p3_data.2   ;chip enble van scherm actief laag
                                           ***** Error: Unresolved operand(s)
-      18      18   00000                      CD          bit     p1_data.2   ;Command write
+      18      18   00000                      CD          bit     p3_data.3   ;Command write
                                           ***** Error: Unresolved operand(s)
-      19      19   00000                      RESET       bit     p1_data.0   ;reset van scherm actief laag
+      19      19   00000                      RESET       bit     p1_data.1   ;reset van scherm actief laag
                                           ***** Error: Unresolved operand(s)
-      20      20   00000                      FS          bit     p1_data.6   ;font groote selecteren FS=1: 6*8, FS=0: 8*8
+      20      20   00000                      FS          bit     p1_data.0   ;font groote selecteren FS=1: 6*8, FS=0: 8*8
                                           ***** Error: Unresolved operand(s)
       21      21   00000                  
       22      22   00000                  
@@ -46,268 +46,282 @@ C:\Users\Nico\Desktop\Project\Digi-Sketch\programma\project.inc
                                           ***** Error: Unresolved operand(s)
       38      38   00002 C000                 push    psw
                                           ***** Error: Unresolved operand(s)
-      39      39   00004 1200C5               lcall   P3in                        ;poort 3 als input schakelen
-      40      40   00007                  STAOPNIEUW:
-      41      41   00007 751000               mov     STA,#00h                    ;STA register leeg maken
-      42      42   0000A D200                 setb    CD                          ;C/D hoog maken
-                                          ***** Error: Unresolved operand(s)
-      43      43   0000C 120000               lcall   delay10us
-                                          ***** Error: Unresolved operand(s)
-      44      44   0000F 75005D               mov     p1_data,#01011101b
-                                          ***** Error: Unresolved operand(s)
-      45      45   00012 D200                 setb    RD                          ;RD' laag maken
-                                          ***** Error: Unresolved operand(s)
-      46      46   00014 C200                 clr     WR                          ;WR' hoog maken
-                                          ***** Error: Unresolved operand(s)
-      47      47   00016 D200                 setb    CE                          ;CE' laag maken
-                                          ***** Error: Unresolved operand(s)
-      48      48   00018 E500                 mov     a,p3_data                   ;status word inlezen
-                                          ***** Error: Unresolved operand(s)
-      49      49   0001A 5403                 anl     a,#03h                      ;masker voor STA0 en STA1
-      50      50   0001C B403E8               cjne    a,#03h,STAOPNIEUW           ;vergelijken
-      51      51   0001F F510                 mov     STA,a                       ;data opslaan in STA voor eventuel gebruik later
-      52      52   00021 A810                 mov     r0,STA                      ;debug status op aurt zetten
-      53      53   00023 120118               lcall   debug
-      54      54   00026 C200                 clr     CE                          ;CE' terug hoog maken
-                                          ***** Error: Unresolved operand(s)
-      55      55   00028 D000                 pop     psw
-                                          ***** Error: Unresolved operand(s)
-      56      56   0002A D000                 pop     acc
-                                          ***** Error: Unresolved operand(s)
-      57      57   0002C 22               ret
-      58      58   0002D                  
-      59      59   0002D                  ;------------------------------------------------------------------
-      60      60   0002D                  ;Initializatie van grafisch LCD scherm
-      61      61   0002D                  ;-Poort 1
-      62      62   0002D                  ;------------------------------------------------------------------
-      63      63   0002D                  initGLCD:
-      64      64   0002D 1200A1               lcall   P1out                   ;poort 1 initializeren
-      65      65   00030 C200                 clr     RESET                   ;reseten van scherm
-                                          ***** Error: Unresolved operand(s)
-      66      66   00032 D200                 setb    FS                      ;font op 6*8 zetten
-                                          ***** Error: Unresolved operand(s)
-      67      67   00034 C200                 clr     CE                      ;chip enable hoog zetten
-                                          ***** Error: Unresolved operand(s)
-      68      68   00036 7414                 mov     a,#20                   ;reset lang genenoeg laten duren
-      69      69   00038 120000               lcall   delaya0k05s
-                                          ***** Error: Unresolved operand(s)
-      70      70   0003B D200                 setb    RESET                   ;reset terug af zetten
-                                          ***** Error: Unresolved operand(s)
-      71      71   0003D                  
-      72      72   0003D 120000               lcall   initsio                 ;voor debug
-                                          ***** Error: Unresolved operand(s)
-      73      73   00040                  
-      74      74   00040                  w1:
-      75      75   00040 3000FD               jnb     p2_data.0,w1
-                                          ***** Error: Unresolved operand(s)
-      76      76   00043                  
-      77      77   00043 120000               lcall   statusCheck             ;initiele status check uitvoeren
-      78      78   00046                  
-      79      79   00046 751280               mov     COMANDREG,#80h          ;mode instellen
-      80      80   00049 1200F7               lcall   zendComando             ;mode instellen
-      81      81   0004C                  wacht2:
-      82      82   0004C 3000FD               jnb     p2_data.0,wacht2
+      39      39   00004 1200CF               lcall   P4in                        ;poort 4 als input schakelen
+      40      40   00007 1200AB               lcall   P3out
+      41      41   0000A 750000               mov     p4_data,#00h
+                                          ***** Error: Unresolved operand(s)
+      42      42   0000D                  STAOPNIEUW:
+      43      43   0000D 751000               mov     STA,#00h                    ;STA register leeg maken
+      44      44   00010 D200                 setb    CD                          ;C/D hoog maken
+                                          ***** Error: Unresolved operand(s)
+      45      45   00012 75000E               mov     p1_data,#00001110b
+                                          ***** Error: Unresolved operand(s)
+      46      46   00015 D200                 setb    CE                          ;CE' laag maken
+                                          ***** Error: Unresolved operand(s)
+      47      47   00017 E500                 mov     a,p3_data                   ;status word inlezen
+                                          ***** Error: Unresolved operand(s)
+      48      48   00019 5403                 anl     a,#03h                      ;masker voor STA0 en STA1
+      49      49   0001B                  
+      50      50   0001B                  
+      51      51   0001B                  
+      52      52   0001B B403EF               cjne    a,#03h,STAOPNIEUW           ;vergelijken
+      53      53   0001E F510                 mov     STA,a                       ;data opslaan in STA voor eventuel gebruik later
+      54      54   00020 F8                   mov     r0,a                      ;debug status op aurt zetten
+      55      55   00021 120122               lcall   debug
+      56      56   00024 C200                 clr     CE                          ;CE' terug hoog maken
+                                          ***** Error: Unresolved operand(s)
+      57      57   00026 D000                 pop     psw
+                                          ***** Error: Unresolved operand(s)
+      58      58   00028 D000                 pop     acc
+                                          ***** Error: Unresolved operand(s)
+      59      59   0002A 22               ret
+      60      60   0002B                  
+      61      61   0002B                  ;------------------------------------------------------------------
+      62      62   0002B                  ;Initializatie van grafisch LCD scherm
+      63      63   0002B                  ;-Poort 1
+      64      64   0002B                  ;------------------------------------------------------------------
+      65      65   0002B                  initGLCD:
+      66      66   0002B 120090               lcall   P1out                   ;poort 1 initializeren
+      67      67   0002E C200                 clr     RESET                   ;reseten van scherm
+                                          ***** Error: Unresolved operand(s)
+      68      68   00030 740F                 mov     a,#0fh                   ;reset lang genenoeg laten duren
+      69      69   00032 120000               lcall   delaya0k05s
+                                          ***** Error: Unresolved operand(s)
+      70      70   00035 D200                 setb    RESET                   ;reset terug af zetten
+                                          ***** Error: Unresolved operand(s)
+      71      71   00037 D200                 setb    FS                      ;font op 6*8 zetten
+                                          ***** Error: Unresolved operand(s)
+      72      72   00039 C200                 clr     CE                      ;chip enable hoog zetten
+                                          ***** Error: Unresolved operand(s)
+      73      73   0003B                  
+      74      74   0003B                  
+      75      75   0003B 120000               lcall   initsio                 ;voor debug
+                                          ***** Error: Unresolved operand(s)
+      76      76   0003E                  
+      77      77   0003E 120000               lcall   statusCheck             ;initiele status check uitvoeren
+      78      78   00041                  
+      79      79   00041 751280               mov     COMANDREG,#80h          ;mode instellen
+      80      80   00044 120101               lcall   zendComando             ;mode instellen
+      81      81   00047                  
+      82      82   00047 751100               mov     DATAREG,#00h            ;grafisch home adres
+      83      83   0004A 1200E1               lcall   zendData
+      84      84   0004D 751100               mov     DATAREG,#00h
+      85      85   00050 1200E1               lcall   zendData
+      86      86   00053 751242               mov     COMANDREG,#42h
+      87      87   00056 120101               lcall   zendComando
+      88      88   00059                  
+      89      89   00059 751128               mov     DATAREG,#28h            ;Grafic aeria set
+      90      90   0005C 1200E1               lcall   zendData
+      91      91   0005F 751100               mov     DATAREG,#00h
+      92      92   00062 1200E1               lcall   zendData
+      93      93   00065 751243               mov     COMANDREG,#43h
+      94      94   00068 120101               lcall   zendComando
+      95      95   0006B                  
+      96      96   0006B                  
+      97      97   0006B 751100               mov     DATAREG,#00h            ;text home aderes
+      98      98   0006E 1200E1               lcall   zendData
+      99      99   00071 751100               mov     DATAREG,#00h
+     100     100   00074 1200E1               lcall   zendData
+     101     101   00077 751240               mov     COMANDREG,#40h
+     102     102   0007A 120101               lcall   zendComando
+     103     103   0007D                  
+     104     104   0007D 751128               mov     DATAREG,#28h            ;aantal colommen text
+     105     105   00080 1200E1               lcall   zendData
+     106     106   00083 751100               mov     DATAREG,#00h
+     107     107   00086 1200E1               lcall   zendData
+     108     108   00089 751241               mov     COMANDREG,#41h
+     109     109   0008C 120101               lcall   zendComando
+     110     110   0008F 22               ret
+     111     111   00090                  
+     112     112   00090                  
+     113     113   00090                  ;------------------------------------------------------------------
+     114     114   00090                  ;Initializatie poort 1 als output
+     115     115   00090                  ;-poort 1
+     116     116   00090                  ;------------------------------------------------------------------
+     117     117   00090                  P1out:
+     118     118   00090 C000                 push    syscon0                 ;juiste map selecteren
                                           ***** Error: Unresolved operand(s)
-      83      83   0004F                  
-      84      84   0004F 751100               mov     DATAREG,#00h            ;grafisch home adres
-      85      85   00052 1200D7               lcall   zendData
-      86      86   00055 751100               mov     DATAREG,#00h
-      87      87   00058 1200D7               lcall   zendData
-      88      88   0005B 751242               mov     COMANDREG,#42h
-      89      89   0005E 1200F7               lcall   zendComando
-      90      90   00061                  wacht3:
-      91      91   00061 3000FD               jnb     p2_data.0,wacht3
+     119     119   00092 750004               mov     syscon0,#004h
                                           ***** Error: Unresolved operand(s)
-      92      92   00064 751128               mov     DATAREG,#28h            ;Grafic aeria set
-      93      93   00067 1200D7               lcall   zendData
-      94      94   0006A 751100               mov     DATAREG,#00h
-      95      95   0006D 1200D7               lcall   zendData
-      96      96   00070 751243               mov     COMANDREG,#43h
-      97      97   00073 1200F7               lcall   zendComando
-      98      98   00076                  
-      99      99   00076                  wacht4:
-     100     100   00076 3000FD               jnb     p2_data.0,wacht4
+     120     120   00095 C000                 push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
                                           ***** Error: Unresolved operand(s)
-     101     101   00079 751100               mov     DATAREG,#00h            ;text home aderes
-     102     102   0007C 1200D7               lcall   zendData
-     103     103   0007F 751100               mov     DATAREG,#00h
-     104     104   00082 1200D7               lcall   zendData
-     105     105   00085 751240               mov     COMANDREG,#40h
-     106     106   00088 1200F7               lcall   zendComando
-     107     107   0008B                  wacht5:
-     108     108   0008B 3000FD               jnb     p2_data.0,wacht5
+     121     121   00097 750001               mov     port_page,#001h         ;selecteer poort page 0
                                           ***** Error: Unresolved operand(s)
-     109     109   0008E 751128               mov     DATAREG,#28h            ;aantal colommen text
-     110     110   00091 1200D7               lcall   zendData
-     111     111   00094 751100               mov     DATAREG,#00h
-     112     112   00097 1200D7               lcall   zendData
-     113     113   0009A 751241               mov     COMANDREG,#41h
-     114     114   0009D 1200F7               lcall   zendComando
-     115     115   000A0 22               ret
-     116     116   000A1                  
-     117     117   000A1                  
-     118     118   000A1                  ;------------------------------------------------------------------
-     119     119   000A1                  ;Initializatie poort 1 als output
-     120     120   000A1                  ;-poort 1
-     121     121   000A1                  ;------------------------------------------------------------------
-     122     122   000A1                  P1out:
-     123     123   000A1 C000                 push    syscon0                 ;juiste map selecteren
+     122     122   0009A 7500FF               mov     p1_pudsel,#0ffh         ;selecteer pull_up device
                                           ***** Error: Unresolved operand(s)
-     124     124   000A3 750004               mov     syscon0,#004h
+     123     123   0009D 7500FF               mov     p1_puden,#0ffh          ;selectie inschakelen
                                           ***** Error: Unresolved operand(s)
-     125     125   000A6 C000                 push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
+     124     124   000A0 750000               mov     port_page,#000h         ;selecteer poort page 0
                                           ***** Error: Unresolved operand(s)
-     126     126   000A8 750000               mov     port_page,#000h         ;selecteer poort page 0
+     125     125   000A3 7500FF               mov     p1_dir,#0ffh            ;poort 3 als output schakelen
                                           ***** Error: Unresolved operand(s)
-     127     127   000AB 7500FF               mov     p1_dir,#0ffh            ;poort 3 als output schakelen
+     126     126   000A6 D000                 pop     port_page               ;herstellen in oorspronkelijke staat
                                           ***** Error: Unresolved operand(s)
-     128     128   000AE D000                 pop     port_page               ;herstellen in oorspronkelijke staat
+     127     127   000A8 D000                 pop     syscon0                 ;pagina terug herstellen
                                           ***** Error: Unresolved operand(s)
-     129     129   000B0 D000                 pop     syscon0                 ;pagina terug herstellen
+     128     128   000AA 22               ret
+     129     129   000AB                  
+     130     130   000AB                  ;------------------------------------------------------------------
+     131     131   000AB                  ;Initializatie poort 3 als output
+     132     132   000AB                  ;-poort 3
+     133     133   000AB                  ;------------------------------------------------------------------
+     134     134   000AB                  P3out:
+     135     135   000AB C000                 push    syscon0                 ;juiste map selecteren
                                           ***** Error: Unresolved operand(s)
-     130     130   000B2 22               ret
-     131     131   000B3                  
-     132     132   000B3                  ;------------------------------------------------------------------
-     133     133   000B3                  ;Initializatie poort 3 als output
-     134     134   000B3                  ;-poort 3
-     135     135   000B3                  ;------------------------------------------------------------------
-     136     136   000B3                  P3out:
-     137     137   000B3 C000                 push    syscon0                 ;juiste map selecteren
+     136     136   000AD 750004               mov     syscon0,#004h
                                           ***** Error: Unresolved operand(s)
-     138     138   000B5 750004               mov     syscon0,#004h
+     137     137   000B0 C000                 push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
                                           ***** Error: Unresolved operand(s)
-     139     139   000B8 C000                 push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
+     138     138   000B2 750000               mov     port_page,#000h         ;selecteer poort page 0
                                           ***** Error: Unresolved operand(s)
-     140     140   000BA 750000               mov     port_page,#000h         ;selecteer poort page 0
+     139     139   000B5 7500FF               mov     p3_dir,#0ffh            ;poort 3 als output schakelen
                                           ***** Error: Unresolved operand(s)
-     141     141   000BD 7500FF               mov     p3_dir,#0ffh            ;poort 3 als output schakelen
+     140     140   000B8 D000                 pop     port_page               ;herstellen in oorspronkelijke staat
                                           ***** Error: Unresolved operand(s)
-     142     142   000C0 D000                 pop     port_page               ;herstellen in oorspronkelijke staat
+     141     141   000BA D000                 pop     syscon0                 ;pagina terug herstellen
                                           ***** Error: Unresolved operand(s)
-     143     143   000C2 D000                 pop     syscon0                 ;pagina terug herstellen
+     142     142   000BC 22               ret
+     143     143   000BD                  
+     144     144   000BD                  ;------------------------------------------------------------------
+     145     145   000BD                  ;Initializatie poort 4 als output
+     146     146   000BD                  ;-poort 4
+     147     147   000BD                  ;------------------------------------------------------------------
+     148     148   000BD                  P4out:
+     149     149   000BD C000                 push    syscon0                 ;juiste map selecteren
                                           ***** Error: Unresolved operand(s)
-     144     144   000C4 22               ret
-     145     145   000C5                  
-     146     146   000C5                  ;------------------------------------------------------------------
-     147     147   000C5                  ;Initializatie poort 3 als input
-     148     148   000C5                  ;-poort 3
-     149     149   000C5                  ;------------------------------------------------------------------
-     150     150   000C5                  P3in:
-     151     151   000C5 C000                 push    syscon0                 ;juiste map selecteren
+     150     150   000BF 750004               mov     syscon0,#004h
                                           ***** Error: Unresolved operand(s)
-     152     152   000C7 750004               mov     syscon0,#004h
+     151     151   000C2 C000                 push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
                                           ***** Error: Unresolved operand(s)
-     153     153   000CA C000                 push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
+     152     152   000C4 750000               mov     port_page,#000h         ;selecteer poort page 0
                                           ***** Error: Unresolved operand(s)
-     154     154   000CC 750000               mov     port_page,#000h         ;selecteer poort page 0
+     153     153   000C7 7500FF               mov     p4_dir,#0ffh            ;poort 3 als output schakelen
                                           ***** Error: Unresolved operand(s)
-     155     155   000CF 750000               mov     p3_dir,#000h            ;poort 3 als input schakelen
+     154     154   000CA D000                 pop     port_page               ;herstellen in oorspronkelijke staat
                                           ***** Error: Unresolved operand(s)
-     156     156   000D2 D000                 pop     port_page               ;herstellen in oorspronkelijke staat
+     155     155   000CC D000                 pop     syscon0                 ;pagina terug herstellen
                                           ***** Error: Unresolved operand(s)
-     157     157   000D4 D000                 pop     syscon0                 ;pagina terug herstellen
+     156     156   000CE 22               ret
+     157     157   000CF                  
+     158     158   000CF                  ;------------------------------------------------------------------
+     159     159   000CF                  ;Initializatie poort 4 als input
+     160     160   000CF                  ;-poort 4
+     161     161   000CF                  ;------------------------------------------------------------------
+     162     162   000CF                  P4in:
+     163     163   000CF C000                 push    syscon0                 ;juiste map selecteren
                                           ***** Error: Unresolved operand(s)
-     158     158   000D6 22               ret
-     159     159   000D7                  
-     160     160   000D7                  ;------------------------------------------------------------------
-     161     161   000D7                  ;Data verzeden naar scherm
-     162     162   000D7                  ;-DATAREG
-     163     163   000D7                  ;------------------------------------------------------------------
-     164     164   000D7                  zendData:
-     165     165   000D7 C000                 push    acc
+     164     164   000D1 750004               mov     syscon0,#004h
                                           ***** Error: Unresolved operand(s)
-     166     166   000D9 C000                 push    psw
+     165     165   000D4 C000                 push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
                                           ***** Error: Unresolved operand(s)
-     167     167   000DB 1200B3               lcall   P3out                   ;poort 3 als output schakelen
-     168     168   000DE C200                 clr     CD                      ;C/D laag maken
+     166     166   000D6 750000               mov     port_page,#000h         ;selecteer poort page 0
                                           ***** Error: Unresolved operand(s)
-     169     169   000E0 120000               lcall   delay10us
+     167     167   000D9 750000               mov     p4_dir,#000h            ;poort 3 als input schakelen
                                           ***** Error: Unresolved operand(s)
-     170     170   000E3 750069               mov     p1_data,#01101001b
+     168     168   000DC D000                 pop     port_page               ;herstellen in oorspronkelijke staat
                                           ***** Error: Unresolved operand(s)
-     171     171   000E6 F500                 mov     p3_data,a               ;data op de poort zetten
+     169     169   000DE D000                 pop     syscon0                 ;pagina terug herstellen
                                           ***** Error: Unresolved operand(s)
-     172     172   000E8 C200                 clr     CE                      ;CE' hoog maken
+     170     170   000E0 22               ret
+     171     171   000E1                  ;------------------------------------------------------------------
+     172     172   000E1                  ;Data verzeden naar scherm
+     173     173   000E1                  ;-DATAREG
+     174     174   000E1                  ;------------------------------------------------------------------
+     175     175   000E1                  zendData:
+     176     176   000E1 C000                 push    acc
                                           ***** Error: Unresolved operand(s)
-     173     173   000EA A811                 mov     r0,DATAREG
-     174     174   000EC 120118               lcall   debug
-     175     175   000EF 120000               lcall   statusCheck             ;status van scherm checken voor het zenden van data
-     176     176   000F2 D000                 pop     psw
+     177     177   000E3 C000                 push    psw
                                           ***** Error: Unresolved operand(s)
-     177     177   000F4 D000                 pop     acc
+     178     178   000E5 1200AB               lcall   P3out                   ;poort 3 als output schakelen
+     179     179   000E8 C200                 clr     CD                      ;C/D laag maken
                                           ***** Error: Unresolved operand(s)
-     178     178   000F6 22               ret
-     179     179   000F7                  
-     180     180   000F7                  ;------------------------------------------------------------------
-     181     181   000F7                  ;Comando verzeden naar scherm
-     182     182   000F7                  ;-COMANDREG
-     183     183   000F7                  ;------------------------------------------------------------------
-     184     184   000F7                  zendComando:
-     185     185   000F7 C000                 push    acc
+     180     180   000EA 120000               lcall   delay10us
                                           ***** Error: Unresolved operand(s)
-     186     186   000F9 C000                 push    psw
+     181     181   000ED 750069               mov     p1_data,#01101001b
                                           ***** Error: Unresolved operand(s)
-     187     187   000FB 1200B3               lcall   P3out                   ;poort 3 als output schakelen
-     188     188   000FE D200                 setb    CD                      ;C/D hoog maken
+     182     182   000F0 F500                 mov     p3_data,a               ;data op de poort zetten
                                           ***** Error: Unresolved operand(s)
-     189     189   00100 120000               lcall   delay10us
+     183     183   000F2 C200                 clr     CE                      ;CE' hoog maken
                                           ***** Error: Unresolved operand(s)
-     190     190   00103 43006D               orl     p1_data,#01101101b
+     184     184   000F4 A811                 mov     r0,DATAREG
+     185     185   000F6 120122               lcall   debug
+     186     186   000F9 120000               lcall   statusCheck             ;status van scherm checken voor het zenden van data
+     187     187   000FC D000                 pop     psw
                                           ***** Error: Unresolved operand(s)
-     191     191   00106 851200               mov     p3_data,COMANDREG       ;data op de poort zetten
+     188     188   000FE D000                 pop     acc
                                           ***** Error: Unresolved operand(s)
-     192     192   00109 C200                 clr     CE                      ;CE' hoog maken
+     189     189   00100 22               ret
+     190     190   00101                  
+     191     191   00101                  ;------------------------------------------------------------------
+     192     192   00101                  ;Comando verzeden naar scherm
+     193     193   00101                  ;-COMANDREG
+     194     194   00101                  ;------------------------------------------------------------------
+     195     195   00101                  zendComando:
+     196     196   00101 C000                 push    acc
                                           ***** Error: Unresolved operand(s)
-     193     193   0010B A812                 mov     r0,COMANDREG
-     194     194   0010D 120118               lcall   debug
-     195     195   00110 120000               lcall   statusCheck             ;status van scherm checken voor het zenden van data
-     196     196   00113 D000                 pop     psw
+     197     197   00103 C000                 push    psw
                                           ***** Error: Unresolved operand(s)
-     197     197   00115 D000                 pop     acc
+     198     198   00105 1200AB               lcall   P3out                   ;poort 3 als output schakelen
+     199     199   00108 D200                 setb    CD                      ;C/D hoog maken
                                           ***** Error: Unresolved operand(s)
-     198     198   00117 22               ret
-     199     199   00118                  
-     200     200   00118                  ;------------------------------------------------------------------
-     201     201   00118                  ;debug info op seriele poort zetten
-     202     202   00118                  ;-r0
-     203     203   00118                  ;------------------------------------------------------------------
-     204     204   00118                  debug:
-     205     205   00118 C000                 push    acc
+     200     200   0010A 120000               lcall   delay10us
                                           ***** Error: Unresolved operand(s)
-     206     206   0011A C000                 push    psw
+     201     201   0010D 43006D               orl     p1_data,#01101101b
                                           ***** Error: Unresolved operand(s)
-     207     207   0011C 740D                 mov     a,#0dh
-     208     208   0011E 120000               lcall   siooutchar
+     202     202   00110 851200               mov     p3_data,COMANDREG       ;data op de poort zetten
                                           ***** Error: Unresolved operand(s)
-     209     209   00121 E8                   mov     a,r0
-     210     210   00122 120000               lcall   siooutbyte
+     203     203   00113 C200                 clr     CE                      ;CE' hoog maken
                                           ***** Error: Unresolved operand(s)
-     211     211   00125 740A                 mov     a,#0ah
-     212     212   00127 120000               lcall   siooutchar
+     204     204   00115 A812                 mov     r0,COMANDREG
+     205     205   00117 120122               lcall   debug
+     206     206   0011A 120000               lcall   statusCheck             ;status van scherm checken voor het zenden van data
+     207     207   0011D D000                 pop     psw
                                           ***** Error: Unresolved operand(s)
-     213     213   0012A D000                 pop     psw
+     208     208   0011F D000                 pop     acc
                                           ***** Error: Unresolved operand(s)
-     214     214   0012C D000                 pop     acc
+     209     209   00121 22               ret
+     210     210   00122                  
+     211     211   00122                  ;------------------------------------------------------------------
+     212     212   00122                  ;debug info op seriele poort zetten
+     213     213   00122                  ;-r0
+     214     214   00122                  ;------------------------------------------------------------------
+     215     215   00122                  debug:
+     216     216   00122 C000                 push    acc
                                           ***** Error: Unresolved operand(s)
-     215     215   0012E 22               ret
-     216     216   0012F                  
-     217     217   0012F                  
-     218     218   0012F                  
-     219     219   0012F                  
-     220     220   0012F                  
-     221     221   0012F                  
-     222     222   0012F                  
-     223     223   0012F                  
-     224     224   0012F                  
-     225     225   0012F                  
-     226     226   0012F                  
-     227     227   0012F                  
-     228     228   0012F                  
-     229     229   0012F                  
-     230     230   0012F                  
-     231     231   0012F                  
-     232     232   0012F                  
-     233     233   0012F                  
-     234     234   0012F                  
-     235     235   0012F                  
+     217     217   00124 C000                 push    psw
+                                          ***** Error: Unresolved operand(s)
+     218     218   00126 740D                 mov     a,#0dh
+     219     219   00128 120000               lcall   siooutchar
+                                          ***** Error: Unresolved operand(s)
+     220     220   0012B E8                   mov     a,r0
+     221     221   0012C 120000               lcall   siooutbyte
+                                          ***** Error: Unresolved operand(s)
+     222     222   0012F 740A                 mov     a,#0ah
+     223     223   00131 120000               lcall   siooutchar
+                                          ***** Error: Unresolved operand(s)
+     224     224   00134 D000                 pop     psw
+                                          ***** Error: Unresolved operand(s)
+     225     225   00136 D000                 pop     acc
+                                          ***** Error: Unresolved operand(s)
+     226     226   00138 22               ret
+     227     227   00139                  
+     228     228   00139                  
+     229     229   00139                  
+     230     230   00139                  
+     231     231   00139                  
+     232     232   00139                  
+     233     233   00139                  
+     234     234   00139                  
+     235     235   00139                  
+     236     236   00139                  
+     237     237   00139                  
+     238     238   00139                  
+     239     239   00139                  
+     240     240   00139                  
+     241     241   00139                  
+     242     242   00139                  
+     243     243   00139                  
+     244     244   00139                  
+     245     245   00139                  
+     246     246   00139                  
                                           ***** Error: Missing END statement
