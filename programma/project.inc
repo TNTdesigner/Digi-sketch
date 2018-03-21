@@ -36,25 +36,22 @@
 statusCheck:
     push    acc
     push    psw
-    lcall   P4in                        ;poort 4 als input schakelen
+    lcall   P5in                        ;poort 4 als input schakelen
     lcall   P3out
-    mov     p4_data,#00h
-STAOPNIEUW:    
+STAOPNIEUW:   
+    mov     p3_data,#00h 
     mov     STA,#00h                    ;STA register leeg maken
-    setb    CD                          ;C/D hoog maken
-    orl     p1_data,#00001110b               
-    setb    RD                          ;RD' laag maken
-    clr     WR                          ;WR' hoog maken
-    setb    CE                          ;CE' laag maken 
-    mov     a,p3_data                   ;status word inlezen
-    anl     a,#03h                      ;masker voor STA0 en STA1
-
-    mov     r0,a                      ;debug status op aurt zetten
-    lcall   debug
-
-    cjne    a,#03h,STAOPNIEUW           ;vergelijken
+    mov     p3_data,#00001110b          
+    lcall   delay1ms 
+    mov     a,p5_data                   ;status word inlezen
+    anl     a,#00000011b                ;masker voor STA0 en STA1
+;    mov     r0,a                        ;debug status op aurt zetten
+;    lcall   debug
+    cjne    a,#00000011b,STAOPNIEUW      ;vergelijken
     mov     STA,a                       ;data opslaan in STA voor eventuel gebruik later
-    clr     CE                          ;CE' terug hoog maken
+    mov     r0,a                        ;debug status op aurt zetten
+    lcall   debug
+    clr     CE
     pop     psw
     pop     acc
 ret
@@ -66,17 +63,15 @@ ret
 initGLCD:
     lcall   P1out                   ;poort 1 initializeren
     clr     RESET                   ;reseten van scherm
-    setb    FS                      ;font op 6*8 zetten
-    clr     CE                      ;chip enable hoog zetten   
-    mov     a,#20                   ;reset lang genenoeg laten duren
+    mov     a,#20h                   ;reset lang genenoeg laten duren
     lcall   delaya0k05s
-    setb    RESET                   ;reset terug af zetten    
+    setb    FS                      ;font op 6*8 zetten
+    setb    RESET                   ;reset terug af zetten
+     
+        
     lcall   initsio                 ;voor debug
 
     lcall   statusCheck             ;initiele status check uitvoeren
-    
-    mov     COMANDREG,#80h          ;mode instellen
-    lcall   zendComando             ;mode instellen
 
     mov     DATAREG,#00h            ;grafisch home adres
     lcall   zendData
@@ -85,7 +80,7 @@ initGLCD:
     mov     COMANDREG,#42h 
     lcall   zendComando     
     
-    mov     DATAREG,#28h            ;Grafic aeria set
+    mov     DATAREG,#1eh            ;Grafic aeria set
     lcall   zendData
     mov     DATAREG,#00h
     lcall   zendData
@@ -100,11 +95,17 @@ initGLCD:
     mov     COMANDREG,#40h
     lcall   zendComando
     
-    mov     DATAREG,#28h            ;aantal colommen text
+    mov     DATAREG,#1eh            ;aantal colommen text
     lcall   zendData
     mov     DATAREG,#00h
     lcall   zendData
     mov     COMANDREG,#41h
+    lcall   zendComando
+
+    mov     COMANDREG,#80h
+    lcall   zendComando
+
+    mov     COMANDREG,#9Eh
     lcall   zendComando
 ret
 
@@ -117,8 +118,11 @@ P1out:
     push    syscon0                 ;juiste map selecteren
     mov     syscon0,#004h
     push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
+    mov     port_page,#001h         ;selecteer poort page 0
+    mov     p1_pudsel,#0ffh         ;selecteer pull_up device
+    mov     p1_puden,#0ffh          ;selectie inschakelen
     mov     port_page,#000h         ;selecteer poort page 0
-    mov     p1_dir,#0ffh            ;poort 3 als output schakelen
+    mov     p1_dir,#0ffh            ;poort 1 als output schakelen
     pop     port_page               ;herstellen in oorspronkelijke staat
     pop     syscon0                 ;pagina terug herstellen
 ret
@@ -138,15 +142,15 @@ P3out:
 ret         
 
 ;------------------------------------------------------------------
-;Initializatie poort 4 als output
-;-poort 4
+;Initializatie poort 5 als output
+;-poort 5
 ;------------------------------------------------------------------
-P4out:
+P5out:
     push    syscon0                 ;juiste map selecteren
     mov     syscon0,#004h
     push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
     mov     port_page,#000h         ;selecteer poort page 0
-    mov     p4_dir,#0ffh            ;poort 3 als output schakelen
+    mov     p5_dir,#0ffh            ;poort 5 als output schakelen
     pop     port_page               ;herstellen in oorspronkelijke staat
     pop     syscon0                 ;pagina terug herstellen
 ret         
@@ -155,12 +159,12 @@ ret
 ;Initializatie poort 4 als input
 ;-poort 4
 ;------------------------------------------------------------------
-P4in:
+P5in:
     push    syscon0                 ;juiste map selecteren
     mov     syscon0,#004h
     push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
     mov     port_page,#000h         ;selecteer poort page 0
-    mov     p4_dir,#000h            ;poort 3 als input schakelen
+    mov     p5_dir,#000h            ;poort 5 als input schakelen
     pop     port_page               ;herstellen in oorspronkelijke staat
     pop     syscon0                 ;pagina terug herstellen
 ret 
@@ -171,15 +175,14 @@ ret
 zendData:
     push    acc
     push    psw
-    lcall   P3out                   ;poort 3 als output schakelen
-    clr     CD                      ;C/D laag maken
-    lcall   delay10us
-    mov     p1_data,#01101001b
-    mov     p3_data,a               ;data op de poort zetten
-    clr     CE                      ;CE' hoog maken
+    lcall   statusCheck             ;status van scherm checken voor het zenden van data
+    lcall   P5out                   ;poort 5 als output schakelen
+    mov     p5_data,DATAREG               ;data op de poort zetten
+    mov     p3_data,#00001001b
+    lcall   delay1ms
+    clr     CE
     mov     r0,DATAREG
     lcall   debug
-    lcall   statusCheck             ;status van scherm checken voor het zenden van data
     pop     psw
     pop     acc
 ret
@@ -191,15 +194,14 @@ ret
 zendComando:
     push    acc
     push    psw
-    lcall   P3out                   ;poort 3 als output schakelen
-    setb    CD                      ;C/D hoog maken
-    lcall   delay10us
-    orl     p1_data,#01101101b
-    mov     p3_data,COMANDREG       ;data op de poort zetten
-    clr     CE                      ;CE' hoog maken
+    lcall   statusCheck             ;status van scherm checken voor het zenden van data
+    lcall   P5out                   ;poort 5 als output schakelen
+    mov     p5_data,COMANDREG       ;data op de poort zetten
+    mov     p3_data,#00001110b
+    lcall   delay1ms
+    clr     CE
     mov     r0,COMANDREG
     lcall   debug
-    lcall   statusCheck             ;status van scherm checken voor het zenden van data
     pop     psw
     pop     acc
 ret
