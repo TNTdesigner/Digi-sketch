@@ -2,11 +2,16 @@
 .mySlides {display: none}
 img {vertical-align: middle;}
 
+.slideshownav{
+  width: 2em;
+  height: 2em;
+}
+
 .slideshow {
   max-width: 1000px;
   position: relative;
-  padding-top: 3em;
   margin: auto;
+  margin-top: 3em;
 }
 
 /* Next & previous buttons */
