@@ -1,0 +1,22 @@
+#canvasdiv{
+	margin-top: 3em;
+	width: 100vw;
+}
+
+#tryOutCanvas{
+	background-color: gray;
+	z-index: 0;
+	position: absolute;
+	width: 50%;
+	height: 60%;
+	top: 3em;
+	left:25%;
+}
+#tryOutImg{
+	z-index: 1;
+	position: absolute;
+	width: 50%;
+	height: 60%;
+	top: 3em;
+	left:25%;
+}
