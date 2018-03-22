@@ -17,7 +17,7 @@ var x = 400;
 var y = 350;
 //function fr drawing stuf
 function draw(key){
-	var canvas = document.getElementById("tyOutCanvas");
+	var canvas = document.getElementById("tryOutCanvas");
 	var ctx = canvas.getContext("2d");
 	ctx.moveTo(x,y);
 	switch(key){
