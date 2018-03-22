@@ -1,6 +1,6 @@
 
 .mySlides {display: none}
-img {vertical-align: middle;}
+
 
 .slideshownav{
   width: 2em;
@@ -22,9 +22,6 @@ img {vertical-align: middle;}
   width: auto;
   padding: 16px;
   margin-top: -22px;
-  color: white;
-  font-weight: bold;
-  font-size: 18px;
   transition: 0.6s ease;
   border-radius: 0 3px 3px 0;
 }
