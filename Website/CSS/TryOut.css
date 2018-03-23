@@ -7,16 +7,16 @@
 	background-color: gray;
 	z-index: 0;
 	position: absolute;
-	width: 50%;
-	height: 60%;
+	width: 60%;
+	height: 70%;
 	top: 3em;
-	left:25%;
+	left:20%;
 }
 #tryOutImg{
 	z-index: 1;
 	position: absolute;
-	width: 50%;
-	height: 60%;
+	width: 60%;
+	height: 70%;
 	top: 3em;
-	left:25%;
+	left:20%;
 }

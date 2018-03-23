@@ -9,6 +9,7 @@
 	<title>Digi-sketch</title>
 	<link type="icon/image" rel="icon" href="IMG/icon.png">
 	<link rel="stylesheet" type="text/css" href="CSS/main.css">
+	<link rel="stylesheet" type="text/css" href="CSS/contact.css">
 </head>
 <body>
 	<!--navigatie veld-->
@@ -24,10 +25,25 @@
 <!--einde navigatie-->
 <!--einde navigatie-->
 <!--begin formulier-->
+<div id="formulierdiv">
+	<form action="mailto:nico.rotthier@gmail.com" method="post" enctype="text/plain">
+		<label for="naam">Naam:</label>
+		<input type="text" name="Naam"><br>
+		<label for="naam">Achternaam:</label>
+		<input type="text" name="AchterNaam"><br>
+		<label for="naam">E-mail:</label>
+		<input type="text" name="mail"><br>
+		<input class="formbutton" type="submit" value="Submit">
+		<input class="formbutton" type="reset" value="Reset">
+	</form>	
+</div>
 
-<form>
-	
-</form>
 <!--einde formulier-->
+<!--begin footer-->	
+	<footer>
+		<p id="copyright">&copy;Thomas More Mechelen-Antwerpen vzw - Campus De Nayer - Professionele bachelor elektronica-ict – 2018</p>
+		<a href="https://github.com/TNTdesigner/Digi-sketch"><img id="githubpage" src="IMG/github.png" alt="link to github page"></a>
+	</footer>
+<!--einde footer-->
 </body>
 </html>
