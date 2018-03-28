@@ -7,8 +7,21 @@ lcall   timer
 timer:
     push    acc
     push    psw
-    mov     r0,p4_data
-
+    mov     r0,#ffh
+    lcall   debug
+    mov     b,p4_data
+    jb      b.2,gedrukt1
+    ljmp    n1
+gedrukt1:
+    mov     r0,#01h                        ;debug status op aurt zetten
+    lcall   debug
+n1:
+    jb      b.7,gedrukt2
+    ljmp    n2
+gedrukt2:
+    mov     r0,#02h
+    lcall   debug
+n2:
     pop     psw
     pop     acc
 reti
@@ -42,8 +55,8 @@ initRotary:
     lcall   P4in
     lcall   initsio
     mov     tmod,#00000010b ;timer in auto relaud mode zetten
-    mov     tl0,#06h
-    mov     th0,#06h
+    mov     tl0,#01h
+    mov     th0,#01h
     setb    tr0
     setb    ea
     setb    et0

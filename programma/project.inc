@@ -37,16 +37,17 @@ statusCheck:
     push    acc
     push    psw
     lcall   P5in                        ;poort 4 als input schakelen
+    mov     p5_data,#ffh
     lcall   P3out
 STAOPNIEUW:   
-    mov     p3_data,#00h 
     mov     STA,#00h                    ;STA register leeg maken
     mov     p3_data,#00001110b          
     lcall   delay1ms 
     mov     a,p5_data                   ;status word inlezen
+        mov     r0,a                        ;debug status op aurt zetten
+    lcall   debug
     anl     a,#00000011b                ;masker voor STA0 en STA1
-;    mov     r0,a                        ;debug status op aurt zetten
-;    lcall   debug
+
     cjne    a,#00000011b,STAOPNIEUW      ;vergelijken
     mov     STA,a                       ;data opslaan in STA voor eventuel gebruik later
     mov     r0,a                        ;debug status op aurt zetten
@@ -135,6 +136,9 @@ P3out:
     push    syscon0                 ;juiste map selecteren
     mov     syscon0,#004h
     push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
+    mov     port_page,#001h      ;selecteer poort page 1
+    mov     p3_pudsel,#0ffh      ;selecteer pull_up device
+    mov     p3_puden,#0ffh       ;selectie inschakelen
     mov     port_page,#000h         ;selecteer poort page 0
     mov     p3_dir,#0ffh            ;poort 3 als output schakelen
     pop     port_page               ;herstellen in oorspronkelijke staat
@@ -149,6 +153,9 @@ P5out:
     push    syscon0                 ;juiste map selecteren
     mov     syscon0,#004h
     push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
+;    mov    port_page,#001h      ;selecteer poort page 1
+;    mov    p5_pudsel,#0ffh      ;selecteer pull_up device
+;    mov    p5_puden,#0ffh       ;selectie inschakelen
     mov     port_page,#000h         ;selecteer poort page 0
     mov     p5_dir,#0ffh            ;poort 5 als output schakelen
     pop     port_page               ;herstellen in oorspronkelijke staat
@@ -163,7 +170,10 @@ P5in:
     push    syscon0                 ;juiste map selecteren
     mov     syscon0,#004h
     push    port_page               ;tijdelijk bewaren zodat we dat kunnen herstellen
-    mov     port_page,#000h         ;selecteer poort page 0
+;        mov    port_page,#001h      ;selecteer poort page 1
+;    mov    p5_pudsel,#0ffh      ;selecteer pull_up device
+;    mov    p5_puden,#0ffh       ;selectie inschakelen
+;    mov     port_page,#000h         ;selecteer poort page 0
     mov     p5_dir,#000h            ;poort 5 als input schakelen
     pop     port_page               ;herstellen in oorspronkelijke staat
     pop     syscon0                 ;pagina terug herstellen
