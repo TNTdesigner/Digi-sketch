@@ -1,0 +1,132 @@
+C:\Users\Nico\Documents\Thomas more\Digi-sketch\programma\GLCD test.xsf 
+                                          ***** Error: Undecodable line
+                                          ***** Error: Syntax error
+       2       2   00000                  ; **************************************************
+       3       3   00000                  ; * *
+       4       4   00000                  ; * T6963 Application Note V1.0 *
+       5       5   00000                  ; * *
+       6       6   00000                  ; **************************************************
+       7       7   00000                  ; The processor clock speed is 16MHz.
+       8       8   00000                  ; Cycle time is .750mS.
+       9       9   00000                  ; Demo software to display a bit-mapped
+      10      10   00000                  ; graphic on a 240x64 graphics display
+      11      11   00000                  ; with a T6963C LCD controller.
+      12      12   00000                  org 000h
+      13      13   00000 020100           ljmp start ;program start
+      14      14   00100                  org 100h
+      15      15   00100                  start:
+      16      16   00100                  ; Initialize the T6963C
+      17      17   00100 C200             clr p3.3 ;hardware reset
+                                          ***** Error: Unresolved operand(s)
+      18      18   00102 00               nop
+      19      19   00103 00               nop
+      20      20   00104 D200             setb p3.3
+                                          ***** Error: Unresolved operand(s)
+      21      21   00106 900164           mov dptr,#msgi1 ;initialization bytes
+      22      22   00109 12011A           lcall msgc
+      23      23   0010C                  ; Start of regular program
+      24      24   0010C                  ; Display graphic
+      25      25   0010C 90017A           mov dptr,#msgi2 ;set auto mode
+      26      26   0010F 12011A           lcall msgc
+      27      27   00112 90017E           mov dptr,#msg1 ;display graphic
+      28      28   00115 120131           lcall msgd
+      29      29   00118 80FE             sjmp $
+      30      30   0011A                  ;*************************************************
+      31      31   0011A                  ;SUBROUTINES
+      32      32   0011A                  ; MSGC sends the data pointed to by
+      33      33   0011A                  ; the DPTR to the graphics module
+      34      34   0011A                  ; as a series of commands with
+      35      35   0011A                  ; two parameters each.
+      36      36   0011A                  msgc:
+      37      37   0011A 7802             mov r0,#2 ;# of data bytes
+      38      38   0011C                  msgc2:
+      39      39   0011C E4               clr a
+      40      40   0011D 93               movc a,@a+dptr ;get byte
+      41      41   0011E B4A101           cjne a,#0a1h,msgc3 ;done?
+      42      42   00121 22               ret
+      43      43   00122 F9               msgc3: mov r1,a
+      44      44   00123 12014A           lcall writed ;send it
+      45      45   00126 A3               inc dptr
+      46      46   00127 D8F3             djnz r0,msgc2
+      47      47   00129 E4               clr a
+      48      48   0012A 93               movc a,@a+dptr ;get command
+      49      49   0012B F9               mov r1,a
+      50      50   0012C 12013E           lcall writec ;send command
+      51      51   0012F 80E9             sjmp msgc ;next command
+      52      52   00131                  ; MSGD sends the data pointed to by
+      53      53   00131                  ; the DPTR to the graphics module.
+      54      54   00131                  msgd:
+      55      55   00131 E4               clr a
+      56      56   00132 93               movc a,@a+dptr ;get byte
+      57      57   00133 B4A101           cjne a,#0a1h,msgd1 ;done?
+      58      58   00136 22               ret
+      59      59   00137                  msgd1:
+      60      60   00137 F9               mov r1,a
+      61      61   00138 12014A           lcall writed ;send data
+      62      62   0013B A3               inc dptr
+      63      63   0013C 80F3             sjmp msgd
+      64      64   0013E                  ; WRITEC sends the byte in R1 to a
+      65      65   0013E                  ; graphics module as a command.
+      66      66   0013E                  writec:
+      67      67   0013E 120151           lcall status ;display ready?
+      68      68   00141 D200             setb p3.2 ;c/d=1
+                                          ***** Error: Unresolved operand(s)
+      69      69   00143                  writec1:
+      70      70   00143 8900             mov p1,r1 ;get data
+                                          ***** Error: Unresolved operand(s)
+      71      71   00145 C200             clr p3.0 ;strobe it
+                                          ***** Error: Unresolved operand(s)
+      72      72   00147 D200             setb p3.0
+                                          ***** Error: Unresolved operand(s)
+      73      73   00149 22               ret
+      74      74   0014A                  ; WRITED sends the byte in R1 to the
+      75      75   0014A                  ; graphics module as data.
+      76      76   0014A                  writed:
+      77      77   0014A 120151           lcall status ;display ready?
+      78      78   0014D C200             clr p3.0 ;c/d = 0
+                                          ***** Error: Unresolved operand(s)
+      79      79   0014F 80F2             sjmp writec1
+      80      80   00151                  ; STATUS check to see that the graphic
+      81      81   00151                  ; display is ready. It won't return
+      82      82   00151                  ; until it is.
+      83      83   00151                  status:
+      84      84   00151 D200             setb p3.2 ;c/d=1
+                                          ***** Error: Unresolved operand(s)
+      85      85   00153 7500FF           mov p1,#0ffh ;P1 to input
+                                          ***** Error: Unresolved operand(s)
+      86      86   00156 7B0B             mov r3,#0bh ;status bits mask
+      87      87   00158                  stat1:
+      88      88   00158 C200             clr p3.1 ;read it
+                                          ***** Error: Unresolved operand(s)
+      89      89   0015A E500             mov a,p1
+                                          ***** Error: Unresolved operand(s)
+      90      90   0015C D200             setb p3.1
+                                          ***** Error: Unresolved operand(s)
+      91      91   0015E 5B               anl a,r3 ;status OK?
+      92      92   0015F C3               clr c
+      93      93   00160 9B               subb a,r3
+      94      94   00161 70F5             jnz stat1
+      95      95   00163 22               ret
+      96      96   00164                  ;************************************************
+      97      97   00164                  ; TABLES AND DATA
+      98      98   00164                  ; Initialization bytes for 240x64
+      99      99   00164                  msgi1:
+     100     100   00164 800740           db 80h,07h,40h ;text home address
+     101     101   00167 1E0041           db 1eh,00,41h ;text area
+     102     102   0016A 000042           db 00,00,42h ;graphic home address
+     103     103   0016D 1E0043           db 1eh,00,43h ;graphic area
+     104     104   00170 000081           db 00,00,81h ;mode set
+     105     105   00173 000024           db 00,00,24h ;address pointer set
+     106     106   00176 000098           db 00,00,98h ;display mode set
+     107     107   00179 A1               db 0a1h
+     108     108   0017A                  msgi2:
+     109     109   0017A 0000B0           db 00,00,0b0h ;auto mode
+     110     110   0017D A1               db 0a1h
+     111     111   0017E                  ;240x64 Bitmap graphic data
+     112     112   0017E                  ;Only the first 8 bytes are shown here
+     113     113   0017E                  ;The real graphic consists of 1920 bytes
+     114     114   0017E                  ;of binary data.
+     115     115   0017E                  msg1:
+     116     116   0017E 0000000000000000 db 00h,00h,00h,00h,00h,00h,00h,00h
+     117     117   00186 A1               db 0a1h
+     118     118   00187                  end

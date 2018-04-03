@@ -1,32 +1,24 @@
+
 org 0000h
-lcall   main
-
-org 000bh
-lcall   timer
-
-timer:
-
-reti
+ljmp   main
 
 ;------------------------------------------------------------------
 ;Hoofd programma
 ;------------------------------------------------------------------
 main:
     mov     sp,#7fh                 ;stackpointer instellen
-    lcall   XCsw2xtal               ;overschakelen naar xristal 8MHz
     lcall   inits
+      
+lus:
 
-
-lus2:
-
-    ljmp    lus2   
-
+ljmp    lus
 
 
 ;------------------------------------------------------------------
 ;Initializatie van alle componenten nodig in het hoofd programma
 ;------------------------------------------------------------------
 inits:
+    mov     port_page,#000h         ;selecteer poort page 0
     lcall   initGLCD                ;initializatie grafisch LCD scherm, MOET EERST GEBEUREN
 
 ret
