@@ -36,7 +36,6 @@ statusCheck:
     setb    CD
     setb    WR
 stan:
-    clr     CE
     clr     RD
     mov     a,p4_data
     setb    RD
@@ -61,7 +60,7 @@ initGLCD:
     lcall   initsio                 ;voor debug
     mov     p0_dir,#0ffh            ;poort 1 als output
     mov     p3_dir,#0ffh            ;poort 3 als output
-    setb    CE
+    clr     CE
     setb    WR
     setb    RD
     setb    FS                      ;font op 6*8 zetten
@@ -69,6 +68,10 @@ initGLCD:
     lcall   delay1ms 
     setb    RESET                   ;reset terug af zetten 
     lcall   statusCheck             ;initiele status check uitvoeren
+
+    ;Mode set
+    mov     COMANDREG,#10000010b
+    lcall   comandWrite
 
     ;Graphics home address
     mov     DATAREG,#00h
@@ -95,33 +98,23 @@ initGLCD:
     lcall   comandWrite
 
     ;text area set
-    mov     DATAREG,#1eh
+    mov     DATAREG,#28h
     lcall   dataWrite
     mov     DATAREG,#00h
     lcall   dataWrite
     mov     COMANDREG,#41h
     lcall   comandWrite
 
-    ;Mode set
-    mov     COMANDREG,#80h
-    lcall   comandWrite
-
     ;adres data pointer
-    mov     DATAREG,#23h            ;lower address
+    mov     DATAREG,#00h            ;lower address
     lcall   dataWrite
-    mov     DATAREG,#01h
+    mov     DATAREG,#00h
     lcall   dataWrite
     mov     COMANDREG,#24h
     lcall   comandWrite
 
     ;Display mode
-    mov     COMANDREG,#9eh
-    lcall   comandWrite
-
-    ;letter A
-    mov     DATAREG,#21h
-    lcall   dataWrite
-    mov     COMANDREG,c0#h
+    mov     COMANDREG,#10011111b
     lcall   comandWrite
     
 ret
@@ -137,10 +130,8 @@ DataWrite:
     mov     p4_data,DATAREG         ;zet de data op de bus
     clr     CD
     nop
-    clr     CE
     clr     WR                      
     nop
-    setb    CE
     setb    WR
     pop     psw
     pop     acc
@@ -157,12 +148,9 @@ DataRead:
     mov     p4_dir,#000h            ;p4 als ingang
     clr     CD
     clr     RD
-    setb    WR
-    clr     CE
     nop                             ;wachten
     nop
     mov     DATAREG,p4_data         ;data inlezeen van scherm
-    setb    CE
     pop     psw
     pop     acc
 ret
@@ -178,9 +166,7 @@ ComandWrite:
     mov     p4_data,COMANDREG       ;comando op de bus zetten
     setb    CD
     clr     WR
-    clr     CE
     nop
-    setb    CE
     setb    WR
     pop     psw
     pop     acc
