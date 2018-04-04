@@ -90,9 +90,9 @@ initGLCD:
     lcall   comandWrite
 
     ;text home address
-    mov     DATAREG,#00h
+    mov     DATAREG,#07h
     lcall   dataWrite
-    mov     DATAREG,#00h
+    mov     DATAREG,#80h
     lcall   dataWrite
     mov     COMANDREG,#40h
     lcall   comandWrite
@@ -114,7 +114,7 @@ initGLCD:
     lcall   comandWrite
 
     ;Display mode
-    mov     COMANDREG,#10011111b
+    mov     COMANDREG,#98h
     lcall   comandWrite
     
 ret
@@ -187,6 +187,13 @@ debug:
     lcall   siooutchar
     pop     psw
     pop     acc
+ret
+
+;------------------------------------------------------------------
+;lees de encoders in
+;------------------------------------------------------------------
+readRotary:
+    
 ret
 
 
