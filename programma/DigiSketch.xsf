@@ -1,5 +1,5 @@
-clrL    equ     14h                 ;register voor het legen van het het scherm
-clrH    equ     15h                 ;register voor het legen van het het scherm
+clrL    equ     15h                 ;register voor het legen van het het scherm
+clrH    equ     16h                 ;register voor het legen van het het scherm
 
 org 0000h
 ljmp   main
@@ -10,14 +10,40 @@ ljmp   main
 main:
     mov     sp,#7fh                 ;stackpointer instellen
     lcall   inits
-   
-laatzien:
-;letter
-    mov     DATAREG,#ffh
+
+;Mode set
+    mov     COMANDREG,#10000000b
+    lcall   comandWrite
+;Display mode
+    mov     COMANDREG,#10011100b
+    lcall   comandWrite
+
+;adres data pointer
+    mov     DATAREG,#60h            ;lower address
+    lcall   dataWrite
+    mov     DATAREG,#09h
+    lcall   dataWrite
+    mov     COMANDREG,#24h
+    lcall   comandWrite
+    pop     acc
+    pop     psw
+lus0:
+    mov     dptr,#test               ;begin afbeelding in pointer steken
+lus:
+    clr     a
+    movc    a,@a+dptr                  ;get byte
+    cjne    a,#10101010b,next
+    ljmp    stop
+next:    
+    mov     DATAREG,a
     lcall   dataWrite
     mov     COMANDREG,#c0h
     lcall   comandWrite
-    ljmp    laatzien
+    inc     dptr
+    ljmp    lus
+stop:
+    nop
+    ljmp    stop    
 
 
 ;------------------------------------------------------------------
@@ -35,20 +61,28 @@ ret
 clearScreen:
     push    acc
     push    psw
-    mov     clrL,#255               ;255 keer doolopen               
-    mov     clrH,#8                 ;32 keer de 255 keer doorlopen, heel het geheugen van controller leeg maken (8192 keer)
+    mov     clrL,#ffh               ;255 keer doolopen7
+    mov     clrH,#0fh               ;16 keer doorlopen           
 ;Mode set
-    mov     COMANDREG,#10000010b
+    mov     COMANDREG,#10000000b    ;OR mode    
     lcall   comandWrite
-L1:      
-    mov     DATAREG,#00h
-    lcall   dataWrite
-    mov     COMANDREG,#c0h
+;Display mode
+    mov     COMANDREG,#10011100b    ;gafisch en tekst aan zetten
     lcall   comandWrite
-    djnz    clrL,L1
-    mov     clrL,#255
-    djnz    clrH,L1
-;adres data pointer
+;auto write mode
+    mov     COMANDREG,#b0h
+    lcall   comandWrite
+lus2400:
+    mov     DATAREG,#000h
+    lcall   dataAutoWrite
+    djnz    clrL,lus2400
+    mov     clrL,#ffh
+    djnz    clrH,lus2400
+;data auto read af zetten
+    mov     COMANDREG,#b2h
+    lcall   comandWrite
+
+;adres data pointer resetten
     mov     DATAREG,#00h            ;lower address
     lcall   dataWrite
     mov     DATAREG,#00h
@@ -59,6 +93,10 @@ L1:
     pop     psw
 ret
 
+test:
+db 21h,21h,21h,21h,21h,21h,10101010b
+
+
 
 
 ;"#project.inc"
@@ -67,6 +105,9 @@ ret
 ;   -statusCheck            Status check van scherm opslaan in STA register
 ;   -initGLCD               Initializatie van grafisch LCD scherm
 ;   -debug                  debug info op seriele poot zetten
+;   -dataWrite              data naar het scherm sturen
+;   -dataRead               data van het scherm lezen
+;   -comandWrite            comanndo naar scherm sturen
 ;------------------------------------------------------------------                                                                
 ;------------------------------------------------------------------
 ;declaratie van pinnen          
@@ -77,16 +118,15 @@ ret
     CD          bit     p3_data.3   ;Command write
     RESET       bit     p0_data.1   ;reset van scherm actief laag
     FS          bit     p0_data.0   ;font groote selecteren FS=1: 6*8, FS=0: 8*8
-                                                           
-                        
-                        
+                                                                                
 ;------------------------------------------------------------------
 ;declaratie van registers                   
 ;------------------------------------------------------------------
     STA         equ     10h         ;geheugenplaats 10h gelijk stellen aan STA
     DATAREG     equ     11h         ;geheugenplaats voor het verzenden van data naar het scherm
     COMANDREG   equ     12h         ;geheugenplaats voor het verzenden van comandos naar het scherm
-                                    
+    ADDH        equ     13h         ;adres pointer voor scherm MSb
+    ADDL        equ     14h                                       
                                         
 ;------------------------------------------------------------------
 ;Status check van scherm opslaan in STA register
@@ -118,15 +158,14 @@ ret
 
 ;------------------------------------------------------------------
 ;Initializatie van grafisch LCD scherm
-;-Poort 1
 ;------------------------------------------------------------------
 initGLCD:
     lcall   initsio                 ;voor debug
     mov     p0_dir,#0ffh            ;poort 1 als output
     mov     p3_dir,#0ffh            ;poort 3 als output
-    clr     CE
-    setb    WR
-    setb    RD
+    clr     CE                      ;standaart laag houden
+    setb    WR                      ;standaart hoog maken
+    setb    RD                      ;standaart hoog maken
     setb    FS                      ;font op 6*8 zetten
     clr     RESET                   ;reseten van scherm
     lcall   delay1ms 
@@ -134,7 +173,7 @@ initGLCD:
     lcall   statusCheck             ;initiele status check uitvoeren
 
 ;Mode set
-    mov     COMANDREG,#10000010b
+    mov     COMANDREG,#10000000b
     lcall   comandWrite
 
 ;Graphics home address
@@ -146,7 +185,7 @@ initGLCD:
     lcall   comandWrite
 
 ;Graphics area set
-    mov     DATAREG,#1eh
+    mov     DATAREG,#28h
     lcall   dataWrite
     mov     DATAREG,#00h
     lcall   dataWrite
@@ -154,9 +193,9 @@ initGLCD:
     lcall   comandWrite
 
 ;text home address
-    mov     DATAREG,#07h
+    mov     DATAREG,#60h
     lcall   dataWrite
-    mov     DATAREG,#80h
+    mov     DATAREG,#09h
     lcall   dataWrite
     mov     COMANDREG,#40h
     lcall   comandWrite
@@ -178,7 +217,7 @@ initGLCD:
     lcall   comandWrite
 
 ;Display mode
-    mov     COMANDREG,#98h
+    mov     COMANDREG,#10010000b
     lcall   comandWrite
     
 ret
@@ -191,6 +230,24 @@ DataWrite:
     push    acc
     push    psw
     lcall   statusCheck             ;status checken
+    mov     p4_data,DATAREG         ;zet de data op de bus
+    clr     CD
+    nop
+    clr     WR                      
+    nop
+    setb    WR
+    pop     psw
+    pop     acc
+ret
+
+dataAutoWrite:
+    push    acc
+    push    psw
+dataAutoWriteStatus:
+    lcall   statusCheck             ;status checken
+    mov     a,STA
+    anl     a,#04h                ;sta 2 nakijken
+    cjne    a,#04h,dataAutoWriteStatus
     mov     p4_data,DATAREG         ;zet de data op de bus
     clr     CD
     nop
@@ -252,6 +309,27 @@ debug:
     pop     psw
     pop     acc
 ret
+
+;------------------------------------------------------------------
+;lees de encoders in
+;------------------------------------------------------------------
+readRotary:
+    
+ret
+
+;------------------------------------------------------------------
+;laat start menu zien
+;------------------------------------------------------------------
+StartMenu:
+    push    acc
+    push    psw
+
+    pop     psw
+    pop     acc
+ret
+
+ 
+
 
 
 

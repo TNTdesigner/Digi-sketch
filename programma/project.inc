@@ -3,6 +3,9 @@
 ;   -statusCheck            Status check van scherm opslaan in STA register
 ;   -initGLCD               Initializatie van grafisch LCD scherm
 ;   -debug                  debug info op seriele poot zetten
+;   -dataWrite              data naar het scherm sturen
+;   -dataRead               data van het scherm lezen
+;   -comandWrite            comanndo naar scherm sturen
 ;------------------------------------------------------------------                                                                
 ;------------------------------------------------------------------
 ;declaratie van pinnen          
@@ -13,16 +16,15 @@
     CD          bit     p3_data.3   ;Command write
     RESET       bit     p0_data.1   ;reset van scherm actief laag
     FS          bit     p0_data.0   ;font groote selecteren FS=1: 6*8, FS=0: 8*8
-                                                           
-                        
-                        
+                                                                                
 ;------------------------------------------------------------------
 ;declaratie van registers                   
 ;------------------------------------------------------------------
     STA         equ     10h         ;geheugenplaats 10h gelijk stellen aan STA
     DATAREG     equ     11h         ;geheugenplaats voor het verzenden van data naar het scherm
     COMANDREG   equ     12h         ;geheugenplaats voor het verzenden van comandos naar het scherm
-                                    
+    ADDH        equ     13h         ;adres pointer voor scherm MSb
+    ADDL        equ     14h                                       
                                         
 ;------------------------------------------------------------------
 ;Status check van scherm opslaan in STA register
@@ -54,15 +56,14 @@ ret
 
 ;------------------------------------------------------------------
 ;Initializatie van grafisch LCD scherm
-;-Poort 1
 ;------------------------------------------------------------------
 initGLCD:
     lcall   initsio                 ;voor debug
     mov     p0_dir,#0ffh            ;poort 1 als output
     mov     p3_dir,#0ffh            ;poort 3 als output
-    clr     CE
-    setb    WR
-    setb    RD
+    clr     CE                      ;standaart laag houden
+    setb    WR                      ;standaart hoog maken
+    setb    RD                      ;standaart hoog maken
     setb    FS                      ;font op 6*8 zetten
     clr     RESET                   ;reseten van scherm
     lcall   delay1ms 
@@ -70,7 +71,7 @@ initGLCD:
     lcall   statusCheck             ;initiele status check uitvoeren
 
     ;Mode set
-    mov     COMANDREG,#10000010b
+    mov     COMANDREG,#10000000b
     lcall   comandWrite
 
     ;Graphics home address
@@ -82,7 +83,7 @@ initGLCD:
     lcall   comandWrite
 
     ;Graphics area set
-    mov     DATAREG,#1eh
+    mov     DATAREG,#28h
     lcall   dataWrite
     mov     DATAREG,#00h
     lcall   dataWrite
@@ -90,9 +91,9 @@ initGLCD:
     lcall   comandWrite
 
     ;text home address
-    mov     DATAREG,#07h
+    mov     DATAREG,#60h
     lcall   dataWrite
-    mov     DATAREG,#80h
+    mov     DATAREG,#09h
     lcall   dataWrite
     mov     COMANDREG,#40h
     lcall   comandWrite
@@ -114,7 +115,7 @@ initGLCD:
     lcall   comandWrite
 
     ;Display mode
-    mov     COMANDREG,#98h
+    mov     COMANDREG,#10010000b
     lcall   comandWrite
     
 ret
@@ -127,6 +128,24 @@ DataWrite:
     push    acc
     push    psw
     lcall   statusCheck             ;status checken
+    mov     p4_data,DATAREG         ;zet de data op de bus
+    clr     CD
+    nop
+    clr     WR                      
+    nop
+    setb    WR
+    pop     psw
+    pop     acc
+ret
+
+dataAutoWrite:
+    push    acc
+    push    psw
+dataAutoWriteStatus:
+    lcall   statusCheck             ;status checken
+    mov     a,STA
+    anl     a,#04h                ;sta 2 nakijken
+    cjne    a,#04h,dataAutoWriteStatus
     mov     p4_data,DATAREG         ;zet de data op de bus
     clr     CD
     nop
@@ -195,6 +214,19 @@ ret
 readRotary:
     
 ret
+
+;------------------------------------------------------------------
+;laat start menu zien
+;------------------------------------------------------------------
+StartMenu:
+    push    acc
+    push    psw
+
+    pop     psw
+    pop     acc
+ret
+
+ 
 
 
 

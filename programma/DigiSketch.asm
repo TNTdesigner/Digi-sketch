@@ -1,5 +1,5 @@
-clrL    equ     14h                 ;register voor het legen van het het scherm
-clrH    equ     15h                 ;register voor het legen van het het scherm
+clrL    equ     15h                 ;register voor het legen van het het scherm
+clrH    equ     16h                 ;register voor het legen van het het scherm
 
 org 0000h
 ljmp   main
@@ -10,10 +10,40 @@ ljmp   main
 main:
     mov     sp,#7fh                 ;stackpointer instellen
     lcall   inits
-   
-laatzien:
-    lcall   readRotary
-    ljmp    laatzien
+
+    ;Mode set
+    mov     COMANDREG,#10000000b
+    lcall   comandWrite
+    ;Display mode
+    mov     COMANDREG,#10010110b
+    lcall   comandWrite
+
+    ;adres data pointer
+    mov     DATAREG,#60h            ;lower address
+    lcall   dataWrite
+    mov     DATAREG,#09h
+    lcall   dataWrite
+    mov     COMANDREG,#24h
+    lcall   comandWrite
+    pop     acc
+    pop     psw
+lus0:
+    mov     dptr,#test               ;begin afbeelding in pointer steken
+lus:
+    clr     a
+    movc    a,@a+dptr                  ;get byte
+    cjne    a,#10101010b,next
+    ljmp    stop
+next:    
+    mov     DATAREG,a
+    lcall   dataWrite
+    mov     COMANDREG,#c0h
+    lcall   comandWrite
+    inc     dptr
+    ljmp    lus
+stop:
+    nop
+    ljmp    stop    
 
 
 ;------------------------------------------------------------------
@@ -31,20 +61,28 @@ ret
 clearScreen:
     push    acc
     push    psw
-    mov     clrL,#255               ;255 keer doolopen               
-    mov     clrH,#8                 ;32 keer de 255 keer doorlopen, heel het geheugen van controller leeg maken (8192 keer)
+    mov     clrL,#ffh               ;255 keer doolopen7
+    mov     clrH,#0fh               ;16 keer doorlopen           
     ;Mode set
-    mov     COMANDREG,#10000010b
+    mov     COMANDREG,#10000000b    ;OR mode    
     lcall   comandWrite
-L1:      
-    mov     DATAREG,#00h
-    lcall   dataWrite
-    mov     COMANDREG,#c0h
+    ;Display mode
+    mov     COMANDREG,#10011100b    ;gafisch en tekst aan zetten
     lcall   comandWrite
-    djnz    clrL,L1
-    mov     clrL,#255
-    djnz    clrH,L1
-    ;adres data pointer
+    ;auto write mode
+    mov     COMANDREG,#b0h
+    lcall   comandWrite
+lus2400:
+    mov     DATAREG,#000h
+    lcall   dataAutoWrite
+    djnz    clrL,lus2400
+    mov     clrL,#ffh
+    djnz    clrH,lus2400
+    ;data auto read af zetten
+    mov     COMANDREG,#b2h
+    lcall   comandWrite
+
+    ;adres data pointer resetten
     mov     DATAREG,#00h            ;lower address
     lcall   dataWrite
     mov     DATAREG,#00h
@@ -54,6 +92,10 @@ L1:
     pop     acc
     pop     psw
 ret
+
+test:
+db 21h,21h,21h,21h,21h,21h,10101010b
+
 
 
 
