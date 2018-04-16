@@ -15,34 +15,37 @@ main:
     mov     COMANDREG,#10000000b
     lcall   comandWrite
     ;Display mode
-    mov     COMANDREG,#10010110b
+    mov     COMANDREG,#10011100b
     lcall   comandWrite
 
     ;adres data pointer
-    mov     DATAREG,#60h            ;lower address
+    mov     DATAREG,#00h            ;lower address
     lcall   dataWrite
-    mov     DATAREG,#09h
+    mov     DATAREG,#00h
     lcall   dataWrite
     mov     COMANDREG,#24h
     lcall   comandWrite
-    pop     acc
-    pop     psw
+    ;auto write mode
+    mov     COMANDREG,#b0h
+    lcall   comandWrite
+
 lus0:
-    mov     dptr,#test               ;begin afbeelding in pointer steken
+    mov     dptr,#startscherm       ;begin afbeelding in pointer steken
 lus:
     clr     a
-    movc    a,@a+dptr                  ;get byte
+    movc    a,@a+dptr               ;get byte
     cjne    a,#10101010b,next
     ljmp    stop
 next:    
     mov     DATAREG,a
-    lcall   dataWrite
-    mov     COMANDREG,#c0h
-    lcall   comandWrite
+    lcall   dataAutoWrite
     inc     dptr
     ljmp    lus
+    ;data auto read af zetten
+    mov     COMANDREG,#b2h
+    lcall   comandWrite
 stop:
-    nop
+    lcall   readRotary
     ljmp    stop    
 
 
@@ -61,7 +64,7 @@ ret
 clearScreen:
     push    acc
     push    psw
-    mov     clrL,#ffh               ;255 keer doolopen7
+    mov     clrL,#ffh               ;255 keer doolopen
     mov     clrH,#0fh               ;16 keer doorlopen           
     ;Mode set
     mov     COMANDREG,#10000000b    ;OR mode    
@@ -93,11 +96,10 @@ lus2400:
     pop     psw
 ret
 
-test:
-db 21h,21h,21h,21h,21h,21h,10101010b
 
 
 
-
+;include filles
+#include "tables.inc"
 #include "project.inc"
 #include "xcez1.inc" ;include file toevoegen

@@ -20,11 +20,11 @@
 ;------------------------------------------------------------------
 ;declaratie van registers                   
 ;------------------------------------------------------------------
-    STA         equ     10h         ;geheugenplaats 10h gelijk stellen aan STA
+    STA         equ     10h         ;geheugenplaats voor de status check
     DATAREG     equ     11h         ;geheugenplaats voor het verzenden van data naar het scherm
     COMANDREG   equ     12h         ;geheugenplaats voor het verzenden van comandos naar het scherm
-    ADDH        equ     13h         ;adres pointer voor scherm MSb
-    ADDL        equ     14h                                       
+    ROTARY      equ     13h         ;geheugenplaats voor de momentele waarde van de encoders
+    ROTARYTEMP  equ     14h         ;geheugenplaats voor de momentele waarde van de encoders te vergelijken
                                         
 ;------------------------------------------------------------------
 ;Status check van scherm opslaan in STA register
@@ -91,9 +91,9 @@ initGLCD:
     lcall   comandWrite
 
     ;text home address
-    mov     DATAREG,#60h
+    mov     DATAREG,#00h
     lcall   dataWrite
-    mov     DATAREG,#09h
+    mov     DATAREG,#0ah
     lcall   dataWrite
     mov     COMANDREG,#40h
     lcall   comandWrite
@@ -144,7 +144,7 @@ dataAutoWrite:
 dataAutoWriteStatus:
     lcall   statusCheck             ;status checken
     mov     a,STA
-    anl     a,#04h                ;sta 2 nakijken
+    anl     a,#04h                  ;sta 2 nakijken
     cjne    a,#04h,dataAutoWriteStatus
     mov     p4_data,DATAREG         ;zet de data op de bus
     clr     CD
@@ -208,11 +208,30 @@ debug:
     pop     acc
 ret
 
+initRotary:
+    push    acc
+    push    psw
+    mov     p2_dir,#000h            ;poort 2 als input zetten
+    mov     ROTARY,p2_data          ;de waarde van de encoders bewaren
+    pop     psw
+    pop     psw
+ret
+
 ;------------------------------------------------------------------
 ;lees de encoders in
 ;------------------------------------------------------------------
 readRotary:
-    
+    push    acc
+    push    psw
+    mov     a,ROTARY
+    mov     ROTARYTEMP,p2_data
+    cjne    a,ROTARYTEMP,nietGelijk
+    ljmp    gelijk    
+nietGelijk:
+    mov     ROTARY,p2_data
+gelijk:
+    pop     psw
+    pop     acc
 ret
 
 ;------------------------------------------------------------------
@@ -221,7 +240,7 @@ ret
 StartMenu:
     push    acc
     push    psw
-
+    
     pop     psw
     pop     acc
 ret
