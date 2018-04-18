@@ -10,12 +10,21 @@
 ;------------------------------------------------------------------
 ;declaratie van pinnen          
 ;------------------------------------------------------------------
+    ;scherm
     WR          bit     p3_data.0   ;write line van scherm actief laag
     RD          bit     p3_data.1   ;read line van scherrm actief laag
     CE          bit     p3_data.2   ;chip enble van scherm actief laag
     CD          bit     p3_data.3   ;Command write
     RESET       bit     p0_data.1   ;reset van scherm actief laag
     FS          bit     p0_data.0   ;font groote selecteren FS=1: 6*8, FS=0: 8*8
+
+    ;encoders
+    SW1         bit     p2_data.2   ;knop in rotary encoder 1
+    SW2         bit     p2_data.7   ;knop in rotary encoder 2
+    R1A         bit     p2_data.4   ;rotary encoder 1 pin A
+    R1B         bit     p2_data.3   ;rotary encoder 1 pin B
+    R2A         bit     p2_data.5   ;rotary encoder 2 pin A
+    R2B         bit     p2_data.6   ;rotary encoder 2 pin B
                                                                                 
 ;------------------------------------------------------------------
 ;declaratie van registers                   
@@ -25,6 +34,10 @@
     COMANDREG   equ     12h         ;geheugenplaats voor het verzenden van comandos naar het scherm
     ROTARY      equ     13h         ;geheugenplaats voor de momentele waarde van de encoders
     ROTARYTEMP  equ     14h         ;geheugenplaats voor de momentele waarde van de encoders te vergelijken
+    clrL        equ     15h         ;geheugenplaats voor het legen van het het scherm
+    clrH        equ     16h         ;geheugenplaats voor het legen van het het scherm
+    POSX        equ     17h         ;geheugenplaats voor X positie op scherm
+    POSY        equ     18h         ;geheugenplaats voor Y positie op scherm
                                         
 ;------------------------------------------------------------------
 ;Status check van scherm opslaan in STA register
@@ -42,8 +55,8 @@ stan:
     mov     a,p4_data
     setb    RD
     setb    CD
-    mov     r0,a
-    lcall   debug
+;    mov     r0,a
+;    lcall   debug
     mov     STA,a                   ;bijhouden voor eventueel gebruik
     anl     a,#03h                  ;masker voor STA0 en STA1
     cjne    a,#03h,stan
@@ -69,6 +82,8 @@ initGLCD:
     lcall   delay1ms 
     setb    RESET                   ;reset terug af zetten 
     lcall   statusCheck             ;initiele status check uitvoeren
+    clr     POSX                    ;X positie op 0 zetten
+    clr     POSY                    ;Y positie op 0 zetten
 
     ;Mode set
     mov     COMANDREG,#10000000b
@@ -208,6 +223,47 @@ debug:
     pop     acc
 ret
 
+;------------------------------------------------------------------
+;Het scherm leeg maken
+;------------------------------------------------------------------
+clearScreen:
+    push    acc
+    push    psw
+    mov     clrL,#ffh               ;255 keer doolopen
+    mov     clrH,#0fh               ;16 keer doorlopen           
+    ;Mode set
+    mov     COMANDREG,#10000000b    ;OR mode    
+    lcall   comandWrite
+    ;Display mode
+    mov     COMANDREG,#10011100b    ;gafisch en tekst aan zetten
+    lcall   comandWrite
+    ;auto write mode
+    mov     COMANDREG,#b0h
+    lcall   comandWrite
+lus2400:
+    mov     DATAREG,#000h
+    lcall   dataAutoWrite
+    djnz    clrL,lus2400
+    mov     clrL,#ffh
+    djnz    clrH,lus2400
+    ;data auto read af zetten
+    mov     COMANDREG,#b2h
+    lcall   comandWrite
+
+    ;adres data pointer resetten
+    mov     DATAREG,#00h            ;lower address
+    lcall   dataWrite
+    mov     DATAREG,#00h
+    lcall   dataWrite
+    mov     COMANDREG,#24h
+    lcall   comandWrite
+    pop     acc
+    pop     psw
+ret
+
+;------------------------------------------------------------------
+;encoders initializeren
+;------------------------------------------------------------------  
 initRotary:
     push    acc
     push    psw
@@ -216,37 +272,4 @@ initRotary:
     pop     psw
     pop     psw
 ret
-
-;------------------------------------------------------------------
-;lees de encoders in
-;------------------------------------------------------------------
-readRotary:
-    push    acc
-    push    psw
-    mov     a,ROTARY
-    mov     ROTARYTEMP,p2_data
-    cjne    a,ROTARYTEMP,nietGelijk
-    ljmp    gelijk    
-nietGelijk:
-    mov     ROTARY,p2_data
-gelijk:
-    pop     psw
-    pop     acc
-ret
-
-;------------------------------------------------------------------
-;laat start menu zien
-;------------------------------------------------------------------
-StartMenu:
-    push    acc
-    push    psw
-    
-    pop     psw
-    pop     acc
-ret
-
- 
-
-
-
 
