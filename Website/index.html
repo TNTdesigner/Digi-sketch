@@ -8,58 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Digi-sketch</title>
 	<link type="icon/image" rel="icon" href="IMG/icon.png">
-	<link rel="stylesheet" type="text/css" href="CSS/slideshow.css">
-	<link rel="stylesheet" type="text/css" href="CSS/main.css">
-	<script src="Scripts/slideshow.js"></script>
+	<script src="Scripts/index.js"></script>
 </head>
-<body onload="currentSlide(1)">
-<!--navigatie veld-->
-	<div class="navigation">
-		<ul class="ulnav">
-			<li class="linav">
-				<a class="linknav" href="#top"><img class="home" src="IMG/home.png" alt="home button"></a>
-				<a class="linknav" href="contact.html">Contact</a>
-				<a class="linknav" href="TryOut.html">Try it!</a>
-			</li>
-		</ul>
-	</div>
-<!--einde navigatie-->
-<!--slideshow-->
-	<div class="slideshow">
-
-		<div class="mySlides fade">
-			<div class="numbertext">1 / 3</div>
-			<img src="IMG/bat.jpg" style="width:100%" alt="foto digi-sketch">
-			<div class="text">6200mAh baterij</div>
-		</div>
-
-		<div class="mySlides fade">
-			<div class="numbertext">2 / 3</div>
-			<img src="IMG/scherm.jpg" style="width:100%" alt="foto digi-sketch">
-			<div class="text">Grafisch LCD</div>
-		</div>
-
-		<div class="mySlides fade">
-			<div class="numbertext">3 / 3</div>
-			<img src="IMG/controller.jpg" style="width:100%" alt="foto digi-sketch">
-			<div class="text">XC888 controller</div>
-		</div>
-
-		<a class="prev" onclick="plusSlides(-1)"><img class="slideshownav" src="IMG/previous.png" alt="previous"></a>
-		<a class="next" onclick="plusSlides(1)"><img class="slideshownav" src="IMG/next.png" alt="next"></a>
-	</div>
-	<br>
-	<div style="text-align:center">
-		<span class="dot" onclick="currentSlide(1)"></span> 
-		<span class="dot" onclick="currentSlide(2)"></span> 
-		<span class="dot" onclick="currentSlide(3)"></span> 
-	</div>
-<!--einde slideshow-->
-<!--begin footer-->	
-	<footer>
-		<p id="copyright">&copy;Thomas More Mechelen-Antwerpen vzw - Campus De Nayer - Professionele bachelor elektronica-ict – 2018</p>
-		<a href="https://github.com/TNTdesigner/Digi-sketch"><img id="githubpage" src="IMG/github.png" alt="link to github page"></a>
-	</footer>
-<!--einde footer-->
+<body background="IMG/background.jpg"  onload="checkDate()">
+	<h1>Digi-Sktech</h1>
+	<h2 id="releaseDate"></h2>
 </body>
 </html>
