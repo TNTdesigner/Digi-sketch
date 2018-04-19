@@ -27,8 +27,8 @@ main:
     lcall   comandWrite
 
 lus0:
-    mov     dptr,#startscherm       ;begin afbeelding in pointer steken
-;    mov     dptr,#rogue       ;begin afbeelding in pointer steken
+;    mov     dptr,#startscherm       ;begin afbeelding in pointer steken
+    mov     dptr,#rogue       ;begin afbeelding in pointer steken
 lus:
     clr     a
     movc    a,@a+dptr               ;get byte
