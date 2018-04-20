@@ -268,53 +268,35 @@ initRotary:
     push    acc
     push    psw
     mov     p2_dir,#000h            ;poort 2 als input zetten
-    mov     ROTARY,p2_data          ;de waarde van de encoders bewaren
-    pop     psw
-    pop     psw
-ret
-
-;------------------------------------------------------------------
-;lees de encoders in
-;------------------------------------------------------------------
-
-
-readRotary:
-    push    acc
-    push    psw
-    jb      SW1,RotaryNext1         ;drukknop van encoder 1 lezen
-    mov     r0,#01h
-    lcall   debug
-RotaryNext1:             
-    jb     SW2,RotaryNext2          ;drukknop van encoder 2 lezen 
-    mov     r0,#02h
-    lcall   debug
-RotaryNext2:
-    jnb     R1A,RotaryNext3
-    jnb     R1B,CCW
-    mov     R0,#04h
-    lcall   debug
-    lcall   RotaryNext3
-CCW:
-    mov     R0,#05h
-    lcall   debug
-RotaryNext3:
+    clr     ROTARY
+    clr     ROTARYTEMP
+    mov     tmod,#00000010b         ;timer op 8bit autoreload zetten
+    mov     TH0,#128
+    mov     TL0,#128
+    setb    ET0
+    setb    EA
+    setb    TR0    
     pop     psw
     pop     acc
 ret
 
 ;------------------------------------------------------------------
-;laat start menu zien
+;positie encoders nakijken
 ;------------------------------------------------------------------
-StartMenu:
+checkRotary:
     push    acc
     push    psw
-    
+    mov     r0,#ffh
+    lcall   debug
+    mov     a,p2_data
+    cjne    a,ROTARYTEMP,verzet
+    ljmp    stopRotary
+verzet:
+    mov     r0,a
+    lcall   debug
+    mov     ROTARYTEMP,a
+stopRotary:
     pop     psw
     pop     acc
 ret
-
- 
-
-
-
 

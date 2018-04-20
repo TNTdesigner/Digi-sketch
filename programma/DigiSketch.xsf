@@ -1,6 +1,21 @@
 org 0000h
 ljmp   main
 
+org 000bh
+    push    acc
+    push    psw
+    mov     a,p2_data
+    cjne    a,ROTARYTEMP,verzet
+    ljmp    stopRotary
+verzet:
+    mov     r0,a
+    lcall   debug
+    mov     ROTARYTEMP,a
+stopRotary:
+    pop     psw
+    pop     acc
+reti
+
 ;------------------------------------------------------------------
 ;Hoofd programma
 ;------------------------------------------------------------------
@@ -9,40 +24,41 @@ main:
     lcall   inits
 
 ;Mode set
-    mov     COMANDREG,#10000000b
-    lcall   comandWrite
+;    mov     COMANDREG,#10000000b
+;    lcall   comandWrite
 ;Display mode
-    mov     COMANDREG,#10011100b
-    lcall   comandWrite
+;    mov     COMANDREG,#10011100b
+;    lcall   comandWrite
 
 ;adres data pointer
-    mov     DATAREG,#00h            ;lower address
-    lcall   dataWrite
-    mov     DATAREG,#00h
-    lcall   dataWrite
-    mov     COMANDREG,#24h
-    lcall   comandWrite
+;    mov     DATAREG,#00h            ;lower address
+;    lcall   dataWrite
+;    mov     DATAREG,#00h
+;    lcall   dataWrite
+;    mov     COMANDREG,#24h
+;    lcall   comandWrite
 ;auto write mode
-    mov     COMANDREG,#b0h
-    lcall   comandWrite
+;    mov     COMANDREG,#b0h
+;    lcall   comandWrite
 
-lus0:
-    mov     dptr,#rogue       ;begin afbeelding in pointer steken
-lus:
-    clr     a
-    movc    a,@a+dptr               ;get byte
-    cjne    a,#10101010b,next
-    ljmp    stop
-next:    
-    mov     DATAREG,a
-    lcall   dataAutoWrite
-    inc     dptr
-    ljmp    lus
+;lus0:
+;    mov     dptr,#startscherm       ;begin afbeelding in pointer steken
+;    mov     dptr,#rogue       ;begin afbeelding in pointer steken
+;lus:
+;    clr     a
+;    movc    a,@a+dptr               ;get byte
+;    cjne    a,#10101010b,next
+;    ljmp    stop
+;next:    
+;    mov     DATAREG,a
+;    lcall   dataAutoWrite
+;    inc     dptr
+;    ljmp    lus
 ;data auto read af zetten
-    mov     COMANDREG,#b2h
-    lcall   comandWrite
+;    mov     COMANDREG,#b2h
+;    lcall   comandWrite
 stop:
-    lcall   readRotary
+    
     ljmp    stop    
 
 
@@ -50,8 +66,10 @@ stop:
 ;Initializatie van alle componenten nodig in het hoofd programma
 ;------------------------------------------------------------------
 inits:
+    lcall   initsio                 ;voor debug
     mov     port_page,#000h         ;selecteer poort page 0
-    lcall   initGLCD                ;initializatie grafisch LCD scherm, MOET EERST GEBEUREN
+;    lcall   initGLCD                ;initializatie grafisch LCD scherm, MOET EERST GEBEUREN
+    lcall   initRotary
 ;    lcall   clearScreen
 ret
 
@@ -263,7 +281,7 @@ ret
 ;Initializatie van grafisch LCD scherm
 ;------------------------------------------------------------------
 initGLCD:
-    lcall   initsio                 ;voor debug
+    
     mov     p0_dir,#0ffh            ;poort 1 als output
     mov     p3_dir,#0ffh            ;poort 3 als output
     clr     CE                      ;standaart laag houden
@@ -457,57 +475,17 @@ ret
 ;encoders initializeren
 ;------------------------------------------------------------------  
 initRotary:
-    push    acc
-    push    psw
     mov     p2_dir,#000h            ;poort 2 als input zetten
-    mov     ROTARY,p2_data          ;de waarde van de encoders bewaren
-    pop     psw
-    pop     psw
+    clr     ROTARY
+    clr     ROTARYTEMP
+    mov     tmod,#00000010b         ;timer op 8bit autoreload zetten
+    mov     TH0,#200
+    mov     TL0,#200
+    setb    EA
+    setb    ET0
+    setb    TR0  
+
 ret
-
-;------------------------------------------------------------------
-;lees de encoders in
-;------------------------------------------------------------------
-
-
-readRotary:
-    push    acc
-    push    psw
-    jb      SW1,RotaryNext1         ;drukknop van encoder 1 lezen
-    mov     r0,#01h
-    lcall   debug
-RotaryNext1:             
-    jb     SW2,RotaryNext2          ;drukknop van encoder 2 lezen 
-    mov     r0,#02h
-    lcall   debug
-RotaryNext2:
-    jnb     R1A,RotaryNext3
-    jnb     R1B,CCW
-    mov     R0,#04h
-    lcall   debug
-    lcall   RotaryNext3
-CCW:
-    mov     R0,#05h
-    lcall   debug
-RotaryNext3:
-    pop     psw
-    pop     acc
-ret
-
-;------------------------------------------------------------------
-;laat start menu zien
-;------------------------------------------------------------------
-StartMenu:
-    push    acc
-    push    psw
-    
-    pop     psw
-    pop     acc
-ret
-
- 
-
-
 
 
 ;"#xcez1.inc"
