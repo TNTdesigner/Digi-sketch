@@ -71,7 +71,7 @@ ret
 ;Initializatie van grafisch LCD scherm
 ;------------------------------------------------------------------
 initGLCD:
-    lcall   initsio                 ;voor debug
+    
     mov     p0_dir,#0ffh            ;poort 1 als output
     mov     p3_dir,#0ffh            ;poort 3 als output
     clr     CE                      ;standaart laag houden
@@ -265,11 +265,16 @@ ret
 ;encoders initializeren
 ;------------------------------------------------------------------  
 initRotary:
-    push    acc
-    push    psw
     mov     p2_dir,#000h            ;poort 2 als input zetten
-    mov     ROTARY,p2_data          ;de waarde van de encoders bewaren
-    pop     psw
-    pop     psw
+    clr     ROTARY
+    clr     ROTARYTEMP
+    mov     tmod,#00000010b         ;timer op 8bit autoreload zetten
+    mov     TH0,#200
+    mov     TL0,#200
+    setb    EA
+    setb    ET0
+    setb    TR0  
+
 ret
+
 

@@ -350,69 +350,49 @@ C:\Users\Nico\Documents\Thomas more\Digi-sketch\programma\project.inc
                                           ***** Error: Unresolved operand(s)
      270     270   00174 750000               mov     p2_dir,#000h            ;poort 2 als input zetten
                                           ***** Error: Unresolved operand(s)
-     271     271   00177 850013               mov     ROTARY,p2_data          ;de waarde van de encoders bewaren
+     271     271   00177 C213                 clr     ROTARY
+     272     272   00179 C214                 clr     ROTARYTEMP
+     273     273   0017B 750002               mov     tmod,#00000010b         ;timer op 8bit autoreload zetten
                                           ***** Error: Unresolved operand(s)
-     272     272   0017A D000                 pop     psw
+     274     274   0017E 750080               mov     TH0,#128
                                           ***** Error: Unresolved operand(s)
-     273     273   0017C D000                 pop     psw
+     275     275   00181 750080               mov     TL0,#128
                                           ***** Error: Unresolved operand(s)
-     274     274   0017E 22               ret
-     275     275   0017F                  
-     276     276   0017F                  ;------------------------------------------------------------------
-     277     277   0017F                  ;lees de encoders in
-     278     278   0017F                  ;------------------------------------------------------------------
-     279     279   0017F                  
-     280     280   0017F                  
-     281     281   0017F                  readRotary:
-     282     282   0017F C000                 push    acc
+     276     276   00184 D200                 setb    ET0
                                           ***** Error: Unresolved operand(s)
-     283     283   00181 C000                 push    psw
+     277     277   00186 D200                 setb    EA
                                           ***** Error: Unresolved operand(s)
-     284     284   00183 200005               jb      SW1,RotaryNext1         ;drukknop van encoder 1 lezen
+     278     278   00188 D200                 setb    TR0
                                           ***** Error: Unresolved operand(s)
-     285     285   00186 7801                 mov     r0,#01h
-     286     286   00188 120111               lcall   debug
-     287     287   0018B                  RotaryNext1:
-     288     288   0018B 200005               jb     SW2,RotaryNext2          ;drukknop van encoder 2 lezen
+     279     279   0018A D000                 pop     psw
                                           ***** Error: Unresolved operand(s)
-     289     289   0018E 7802                 mov     r0,#02h
-     290     290   00190 120111               lcall   debug
-     291     291   00193                  RotaryNext2:
-     292     292   00193 300010               jnb     R1A,RotaryNext3
+     280     280   0018C D000                 pop     acc
                                           ***** Error: Unresolved operand(s)
-     293     293   00196 300008               jnb     R1B,CCW
+     281     281   0018E 22               ret
+     282     282   0018F                  
+     283     283   0018F                  ;------------------------------------------------------------------
+     284     284   0018F                  ;positie encoders nakijken
+     285     285   0018F                  ;------------------------------------------------------------------
+     286     286   0018F                  checkRotary:
+     287     287   0018F C000                 push    acc
                                           ***** Error: Unresolved operand(s)
-     294     294   00199 7804                 mov     R0,#04h
-     295     295   0019B 120111               lcall   debug
-     296     296   0019E 1201A6               lcall   RotaryNext3
-     297     297   001A1                  CCW:
-     298     298   001A1 7805                 mov     R0,#05h
-     299     299   001A3 120111               lcall   debug
-     300     300   001A6                  RotaryNext3:
-     301     301   001A6 D000                 pop     psw
+     288     288   00191 C000                 push    psw
                                           ***** Error: Unresolved operand(s)
-     302     302   001A8 D000                 pop     acc
+     289     289   00193 78FF                 mov     r0,#ffh
+     290     290   00195 120111               lcall   debug
+     291     291   00198 E500                 mov     a,p2_data
                                           ***** Error: Unresolved operand(s)
-     303     303   001AA 22               ret
-     304     304   001AB                  
-     305     305   001AB                  ;------------------------------------------------------------------
-     306     306   001AB                  ;laat start menu zien
-     307     307   001AB                  ;------------------------------------------------------------------
-     308     308   001AB                  StartMenu:
-     309     309   001AB C000                 push    acc
+     292     292   0019A B51403               cjne    a,ROTARYTEMP,verzet
+     293     293   0019D 0201A6               ljmp    stopRotary
+     294     294   001A0                  verzet:
+     295     295   001A0 F8                   mov     r0,a
+     296     296   001A1 120111               lcall   debug
+     297     297   001A4 F514                 mov     ROTARYTEMP,a
+     298     298   001A6                  stopRotary:
+     299     299   001A6 D000                 pop     psw
                                           ***** Error: Unresolved operand(s)
-     310     310   001AD C000                 push    psw
+     300     300   001A8 D000                 pop     acc
                                           ***** Error: Unresolved operand(s)
-     311     311   001AF                  
-     312     312   001AF D000                 pop     psw
-                                          ***** Error: Unresolved operand(s)
-     313     313   001B1 D000                 pop     acc
-                                          ***** Error: Unresolved operand(s)
-     314     314   001B3 22               ret
-     315     315   001B4                  
-     316     316   001B4                  
-     317     317   001B4                  
-     318     318   001B4                  
-     319     319   001B4                  
-     320     320   001B4                  
+     301     301   001AA 22               ret
+     302     302   001AB                  
                                           ***** Error: Missing END statement
